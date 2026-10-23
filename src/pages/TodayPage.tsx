@@ -59,10 +59,10 @@ export function TodayPage() {
         </div>
       </section>
 
-      <ButtonLink to={`/drill?n=${stamp}`} size="lg" block className="hover-lift">
+      <ButtonLink to={`/drill?n=${stamp}`} variant="wood" size="lg" block className="hover-lift">
         {answeredToday > 0 ? 'Another eight' : "Start today's drill"}
       </ButtonLink>
-      <ButtonLink to={`/play?board=${nextBoard}`} variant="secondary" size="lg" block>
+      <ButtonLink to={`/play?board=${nextBoard}`} variant="wood" size="lg" block>
         Play a hand
       </ButtonLink>
 

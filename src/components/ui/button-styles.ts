@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils'
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger'
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'wood'
 export type ButtonSize = 'sm' | 'md' | 'lg'
 
 export interface ButtonStyleProps {
@@ -15,6 +15,10 @@ const variants: Record<ButtonVariant, string> = {
   secondary: 'bg-muted text-foreground hover:bg-accent hover:text-accent-foreground',
   ghost: 'bg-transparent text-foreground hover:bg-muted',
   danger: 'bg-danger text-danger-foreground hover:opacity-90',
+  // A physical wooden control. The look (texture, ink, border, pressed state)
+  // is supplied by the preset's `.surface-wood` material; presets without it
+  // fall back to a plain bordered button.
+  wood: 'surface-wood',
 }
 
 const sizes: Record<ButtonSize, string> = {

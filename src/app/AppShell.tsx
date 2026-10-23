@@ -2,6 +2,7 @@ import { NavLink, Outlet, useLocation } from 'react-router'
 import { BookOpen, Home, Settings, Spade } from 'lucide-react'
 import { OfflineBanner } from '@/components/OfflineBanner'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
+import { TopBar } from '@/components/TopBar'
 import { cn } from '@/lib/utils'
 
 /**
@@ -28,10 +29,11 @@ export function AppShell() {
       <div aria-hidden className="app-backdrop" />
       <OfflineBanner />
 
-      {/* No header: the felt runs to the top; the sun/moon lives in Settings. */}
-      <div className="pt-safe" aria-hidden />
+      {/* No header bar — just a floating cluster in the top-right over the felt:
+          the Finesse mark, fullscreen, and the sun/moon (also still in Settings). */}
+      <TopBar />
 
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 md:px-6">
+      <main className="mx-auto w-full max-w-5xl flex-1 px-4 pt-2 pb-6 md:px-6">
         <ErrorBoundary>
           {/* Keyed on the path so each screen fades up on navigation. */}
           <div key={pathname} className="animate-fade-up">

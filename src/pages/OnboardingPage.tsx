@@ -48,7 +48,12 @@ export function OnboardingPage() {
       {index === 2 && <HandView hand={sample} className="animate-pop-in" />}
 
       <div className="mt-auto flex flex-col gap-2">
-        <Button size="lg" block onClick={() => (last ? go() : setIndex((i) => i + 1))}>
+        <Button
+          variant="wood"
+          size="lg"
+          block
+          onClick={() => (last ? go() : setIndex((i) => i + 1))}
+        >
           {last ? 'Deal me in' : 'Next'}
         </Button>
         {!last && (

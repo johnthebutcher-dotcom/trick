@@ -6,6 +6,15 @@
 
 export const SUITS = ['S', 'H', 'D', 'C'] as const
 export type Suit = (typeof SUITS)[number]
+
+/**
+ * The order to show the four suits in when a *player holds a hand on screen*.
+ * Colours alternate (black, red, black, red) so a heart is never next to a
+ * diamond and a spade never next to a club — the standard way bridge players
+ * arrange a hand so cards aren't misread at a glance. `SUITS` stays in rank
+ * order (♠♥♦♣) for the cheat-sheet, bidding and all logic; this is display only.
+ */
+export const HAND_SUITS = ['S', 'H', 'C', 'D'] as const satisfies readonly Suit[]
 export const RANKS = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'] as const
 export type Rank = (typeof RANKS)[number]
 

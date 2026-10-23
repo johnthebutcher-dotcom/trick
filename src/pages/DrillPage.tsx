@@ -151,7 +151,7 @@ function Drill(props: {
 
       <div className="mt-auto pt-2">
         {state.chosen !== null ? (
-          <Button block size="lg" onClick={next}>
+          <Button variant="wood" block size="lg" onClick={next}>
             {state.index + 1 >= state.ids.length ? 'Finish' : 'Next hand'}
           </Button>
         ) : (
@@ -204,7 +204,7 @@ function Summary({ state }: { state: ReturnType<typeof useDrill>['state'] }) {
       )}
 
       <div className="flex flex-col gap-2">
-        <ButtonLink to={`/drill?n=${stamp}`} size="lg" block>
+        <ButtonLink to={`/drill?n=${stamp}`} variant="wood" size="lg" block>
           Another eight
         </ButtonLink>
         <ButtonLink to="/" variant="ghost" block>

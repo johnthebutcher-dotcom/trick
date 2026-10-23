@@ -1,4 +1,4 @@
-import { RED_SUITS, SUIT_NAME, SUIT_SYMBOL, SUITS, type Hand } from '@/features/bridge/cards'
+import { HAND_SUITS, RED_SUITS, SUIT_NAME, SUIT_SYMBOL, type Hand } from '@/features/bridge/cards'
 import { cn } from '@/lib/utils'
 
 /**
@@ -24,7 +24,7 @@ export function HandView({
       aria-label="Your hand"
     >
       <ul className="space-y-3">
-        {SUITS.map((suit) => {
+        {HAND_SUITS.map((suit) => {
           const red = RED_SUITS.has(suit)
           const ranks = hand[suit]
           return (

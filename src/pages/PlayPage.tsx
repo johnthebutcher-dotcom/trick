@@ -4,7 +4,7 @@ import { Lightbulb } from 'lucide-react'
 import { Button, ButtonLink, Card, CardDescription, CardTitle } from '@/components/ui'
 import { ErrorState, LoadingState } from '@/components/states'
 import { CardBack, CardChip } from '@/components/bridge/CardChip'
-import { SUITS, type Card as PlayingCard, type Hand } from '@/features/bridge/cards'
+import { HAND_SUITS, type Card as PlayingCard, type Hand } from '@/features/bridge/cards'
 import type { System } from '@/features/bridge/skills'
 import { useLearner } from '@/features/bridge/store'
 import {
@@ -124,7 +124,7 @@ function Table({
               {shown.text}
             </p>
           ) : (
-            <Button variant="secondary" onClick={askHint} disabled={!humanTurn}>
+            <Button variant="wood" onClick={askHint} disabled={!humanTurn}>
               <Lightbulb className="size-5" aria-hidden />
               {humanTurn ? 'Give me a hint' : 'Waiting for the others…'}
             </Button>
@@ -136,7 +136,7 @@ function Table({
         <Card className="space-y-3">
           <CardTitle className="font-heading font-normal">Everyone passed</CardTitle>
           <CardDescription>No contract this time. Deal again.</CardDescription>
-          <ButtonLink to={`/play?board=${board + 1}`} block>
+          <ButtonLink to={`/play?board=${board + 1}`} variant="wood" block>
             Next board
           </ButtonLink>
         </Card>
@@ -155,7 +155,7 @@ function Table({
             {result.humanPoints >= 0 ? `+${result.humanPoints}` : result.humanPoints} for you.
           </CardDescription>
           <div className="flex flex-col gap-2">
-            <ButtonLink to={`/play?board=${board + 1}`} size="lg" block>
+            <ButtonLink to={`/play?board=${board + 1}`} variant="wood" size="lg" block>
               Next board
             </ButtonLink>
             <ButtonLink to="/" variant="ghost" block>
@@ -277,7 +277,7 @@ function HandRows({
 }) {
   return (
     <div className="flex flex-wrap gap-2">
-      {SUITS.map((suit) =>
+      {HAND_SUITS.map((suit) =>
         hand[suit].map((rank) => {
           const card = { suit, rank }
           const isLegal = legal.some((c) => c.suit === suit && c.rank === rank)
@@ -360,10 +360,11 @@ function AuctionPanel({
       {humanTurn && (
         <div className="space-y-2" role="group" aria-label="Bidding box">
           <Button
-            variant={hintCall?.type === 'pass' ? 'primary' : 'secondary'}
+            variant="wood"
             size="lg"
             block
             onClick={() => onCall({ type: 'pass' })}
+            className={cn(hintCall?.type === 'pass' && 'ring-4 ring-primary')}
           >
             Pass
           </Button>
