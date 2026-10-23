@@ -19,8 +19,8 @@ export default defineConfig({
       manifest: {
         // Per app: update name, short_name, description and theme_color
         // (theme_color should match the active preset's --primary).
-        name: 'Trick',
-        short_name: 'Trick',
+        name: 'Finesse',
+        short_name: 'Finesse',
         description: 'Five-minute bridge drills, one idea at a time.',
         start_url: '/',
         display: 'standalone',

@@ -16,7 +16,7 @@ describe('parseEnv', () => {
     const env = parseEnv({ VITE_SUPABASE_URL: '', VITE_SUPABASE_ANON_KEY: '' })
     expect(env.VITE_SUPABASE_URL).toBeUndefined()
     expect(env.VITE_SUPABASE_ANON_KEY).toBeUndefined()
-    expect(env.VITE_APP_NAME).toBe('Trick')
+    expect(env.VITE_APP_NAME).toBe('Finesse')
   })
 
   it('rejects a malformed URL instead of creating a broken client', () => {

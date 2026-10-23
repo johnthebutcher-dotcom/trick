@@ -49,7 +49,7 @@ export function TodayPage() {
         />
         <div className="space-y-1">
           <p className="text-display font-heading font-normal">{greeting}</p>
-          <p className="text-foreground/80">
+          <p className="text-foreground/90">
             {answeredToday > 0
               ? `${answeredToday} of ${goal} hands today.`
               : `Today: ${current?.title ?? 'a drill'}.`}
@@ -63,7 +63,7 @@ export function TodayPage() {
       </ButtonLink>
 
       <section className="reveal space-y-3">
-        <h2 className="text-xs tracking-[0.12em] text-foreground/75 uppercase">
+        <h2 className="text-xs tracking-[0.12em] text-foreground/90 uppercase">
           Practise one thing
         </h2>
         <Card className="p-0">
@@ -83,9 +83,9 @@ export function TodayPage() {
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="block font-medium">{skill.title}</span>
-                        <span className="block text-sm text-muted-foreground">{skill.blurb}</span>
+                        <span className="block text-base text-muted-foreground">{skill.blurb}</span>
                       </span>
-                      <span className="text-xs text-muted-foreground tabular-nums">
+                      <span className="text-sm text-muted-foreground tabular-nums">
                         {seen > 0 ? `${seen} hands` : 'new'}
                       </span>
                     </Link>
@@ -94,7 +94,7 @@ export function TodayPage() {
                       <span className="font-heading text-xl tabular-nums">{i + 1}</span>
                       <span className="min-w-0 flex-1">
                         <span className="block font-medium">{skill.title}</span>
-                        <span className="block text-sm">
+                        <span className="block text-base">
                           Opens after {skill.unlockAfter} hands of the one before.
                         </span>
                       </span>
@@ -105,7 +105,7 @@ export function TodayPage() {
             })}
           </ul>
         </Card>
-        <p className="text-sm text-foreground/75">
+        <p className="text-base text-foreground/90">
           Hands you miss come back tomorrow. Hands you know come back less and less.
         </p>
       </section>

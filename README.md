@@ -1,4 +1,4 @@
-# Trick
+# Finesse
 
 A bridge trainer for one learner: five-minute drills, one idea at a time, big cards, instant feedback, and the hands she misses come back tomorrow. Built from `app-starter`; the rules Claude follows are in [`CLAUDE.md`](./CLAUDE.md), the plan is in [`docs/SPEC.md`](./docs/SPEC.md), and the history is in [`docs/BUILD_LOG.md`](./docs/BUILD_LOG.md).
 

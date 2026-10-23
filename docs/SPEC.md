@@ -1,4 +1,4 @@
-# Trick — spec
+# Finesse — spec
 
 _Written from the description sent on Oct 22, 2026. Update it when scope changes; the build log records why._
 
@@ -13,7 +13,7 @@ The owner's mother, learning bridge, likely in a club or class setting, who lose
 ## Style
 
 - Preset: `card-room` (Trick-only, derived from warm-editorial): green felt backdrop in both modes (owner's photo, `public/felt.webp`), cream cards in light and dark-brown cards in dark, Tenor Sans headings, DM Sans text (Google Fonts, system fallbacks). Dark by default with the sun/moon toggle.
-- Name: Trick. Icon letter T, theme colour `#1d3a26`.
+- Name: Finesse (repo `trick`). Icon letter F, theme colour `#1d3a26`.
 
 ## Effects (chosen before build)
 

@@ -19,7 +19,7 @@
     "check": "npm run lint && npm run typecheck && npm run format:check && npm run check:effects && npm run test && npm run build",
     "preset": "node scripts/use-preset.mjs",
     "icons": "python3 scripts/make-icons.py",
-    "build:preview": "PREVIEW_BUILD=1 VITE_ROUTER=hash VITE_APP_NAME=Trick vite build --base ./ --outDir dist-preview",
+    "build:preview": "PREVIEW_BUILD=1 VITE_ROUTER=hash VITE_APP_NAME=Finesse vite build --base ./ --outDir dist-preview",
     "check:effects": "node scripts/check-effects.mjs"
   },
   "dependencies": {

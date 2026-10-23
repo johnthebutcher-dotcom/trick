@@ -64,7 +64,7 @@ function Drill(props: {
 
   return (
     <div className="mx-auto flex max-w-xl flex-col gap-5">
-      <div className="flex items-center justify-between text-sm text-foreground/75">
+      <div className="flex items-center justify-between text-sm text-foreground/90">
         <span className="text-xs tracking-[0.12em] uppercase">{skillMeta?.title}</span>
         <span className="tabular-nums">
           {state.index + 1} of {state.ids.length}
@@ -97,14 +97,17 @@ function Drill(props: {
                 answer(option)
               }}
               className={cn(
-                'focus-ring press h-16 rounded-md font-heading text-2xl font-medium transition-[background-color,color,box-shadow] duration-200 ease-soft',
+                'focus-ring press flex h-16 items-center justify-center gap-2 rounded-md font-heading text-2xl font-normal transition-[background-color,color,box-shadow] duration-200 ease-soft',
                 !revealed && 'neu on-felt',
                 revealed && isAnswer && 'bg-success text-success-foreground',
                 revealed && picked && !isAnswer && 'animate-shake bg-danger text-danger-foreground',
                 revealed && !picked && !isAnswer && 'neu-inset on-felt opacity-60',
               )}
             >
+              {revealed && isAnswer && <Check className="size-6" aria-hidden />}
+              {revealed && picked && !isAnswer && <X className="size-6" aria-hidden />}
               {option}
+              {revealed && isAnswer && <span className="sr-only">, correct</span>}
             </button>
           )
         })}
@@ -114,6 +117,7 @@ function Drill(props: {
         <Card
           className={cn('animate-pop-in space-y-2', correct ? 'border-success' : 'border-danger')}
           role="status"
+          aria-live="polite"
         >
           <div className="flex items-center gap-2">
             {correct ? (
@@ -125,14 +129,16 @@ function Drill(props: {
               {correct ? 'Yes.' : `It's ${q.answer}.`}
             </CardTitle>
           </div>
-          <CardDescription className="text-base text-card-foreground">{q.why}</CardDescription>
+          <CardDescription className="text-lg leading-relaxed text-card-foreground">
+            {q.why}
+          </CardDescription>
           {showMore ? (
-            <p className="text-sm leading-relaxed text-muted-foreground">{q.more}</p>
+            <p className="text-base leading-relaxed text-card-foreground">{q.more}</p>
           ) : (
             <button
               type="button"
               onClick={() => setShowMore(true)}
-              className="focus-ring self-start text-sm text-primary underline underline-offset-4"
+              className="focus-ring -ml-2 min-h-11 self-start px-2 text-base text-primary underline underline-offset-4"
             >
               Show me
             </button>
@@ -148,7 +154,7 @@ function Drill(props: {
         ) : (
           <Link
             to="/"
-            className="focus-ring block py-3 text-center text-sm text-foreground/80 underline underline-offset-4"
+            className="focus-ring block min-h-11 py-3 text-center text-base text-foreground/90 underline underline-offset-4"
           >
             Stop for now
           </Link>
@@ -169,7 +175,7 @@ function Summary({ state }: { state: ReturnType<typeof useDrill>['state'] }) {
         <p className="text-display font-heading font-normal tabular-nums">
           {right} of {state.answered.length}
         </p>
-        <p className="text-foreground/85">
+        <p className="text-foreground/90">
           {all
             ? 'Every one. That skill is settling in.'
             : right >= state.answered.length / 2
@@ -184,10 +190,10 @@ function Summary({ state }: { state: ReturnType<typeof useDrill>['state'] }) {
           <ul className="divide-y">
             {missed.map(({ question, chosen }) => (
               <li key={question.id} className="space-y-1 py-3">
-                <p className="text-sm">
+                <p className="text-base">
                   You said <strong>{chosen}</strong>; it's <strong>{question.answer}</strong>.
                 </p>
-                <p className="text-sm text-muted-foreground">{question.why}</p>
+                <p className="text-base text-muted-foreground">{question.why}</p>
               </li>
             ))}
           </ul>

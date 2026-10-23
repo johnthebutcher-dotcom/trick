@@ -32,7 +32,7 @@ export function AppShell() {
       <header className="surface-shell pt-safe sticky top-0 z-20 border-b">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 md:px-6">
           <span className="font-heading text-lg font-semibold">{env.VITE_APP_NAME}</span>
-          <ThemeToggle className="size-9" />
+          <ThemeToggle />
         </div>
       </header>
 

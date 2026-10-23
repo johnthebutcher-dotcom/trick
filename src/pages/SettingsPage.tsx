@@ -50,7 +50,7 @@ export function SettingsPage() {
               disabled={!s.available}
               onClick={() => learner.setPrefs({ ...prefs, system: s.id })}
               className={cn(
-                'focus-ring flex h-12 items-center justify-between rounded-md px-4 text-left transition-shadow duration-200 ease-soft',
+                'focus-ring flex h-14 items-center justify-between rounded-md px-4 text-left transition-shadow duration-200 ease-soft',
                 prefs.system === s.id ? 'neu-inset' : 'neu',
                 !s.available && 'opacity-50',
               )}
@@ -64,12 +64,12 @@ export function SettingsPage() {
         </div>
       </Card>
 
-      <Card className="flex items-center justify-between gap-4">
+      <Card className="flex flex-col gap-4 @sm:flex-row @sm:items-center @sm:justify-between">
         <div>
-          <CardTitle className="font-heading font-normal">Card size</CardTitle>
-          <CardDescription>Bigger cards for the iPad or tired eyes.</CardDescription>
+          <CardTitle className="font-heading font-normal">Text size</CardTitle>
+          <CardDescription>Larger makes everything bigger: cards, buttons, words.</CardDescription>
         </div>
-        <div className="flex gap-2" role="radiogroup" aria-label="Card size">
+        <div className="flex gap-2" role="radiogroup" aria-label="Text size">
           {(['normal', 'large'] as const).map((size) => (
             <button
               key={size}
@@ -78,7 +78,7 @@ export function SettingsPage() {
               aria-checked={prefs.handSize === size}
               onClick={() => learner.setPrefs({ ...prefs, handSize: size })}
               className={cn(
-                'focus-ring h-11 rounded-md px-4 text-sm capitalize transition-shadow duration-200 ease-soft',
+                'focus-ring h-12 min-w-[5.5rem] rounded-md px-4 text-base capitalize transition-shadow duration-200 ease-soft',
                 prefs.handSize === size ? 'neu-inset' : 'neu',
               )}
             >
@@ -88,7 +88,7 @@ export function SettingsPage() {
         </div>
       </Card>
 
-      <Card className="flex items-center justify-between gap-4">
+      <Card className="flex flex-col gap-4 @sm:flex-row @sm:items-center @sm:justify-between">
         <div>
           <CardTitle className="font-heading font-normal">Appearance</CardTitle>
           <CardDescription>Dark by default. Tap to switch.</CardDescription>

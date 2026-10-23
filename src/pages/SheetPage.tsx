@@ -12,12 +12,12 @@ export function SheetPage() {
     <div className="mx-auto flex max-w-xl flex-col gap-8">
       <header className="space-y-1">
         <h1 className="text-display font-heading font-normal">Cheat-sheet</h1>
-        <p className="text-foreground/80">
+        <p className="text-foreground/90">
           Standard American. Count your points, then find the row.
         </p>
       </header>
 
-      <Card className="flex items-center justify-between gap-4">
+      <Card className="flex flex-col gap-4 @sm:flex-row @sm:items-center @sm:justify-between">
         <div>
           <p className="text-xs tracking-[0.12em] text-muted-foreground uppercase">My points</p>
           <p className="text-display font-heading font-normal tabular-nums">
@@ -29,7 +29,7 @@ export function SheetPage() {
             type="button"
             aria-label="Fewer points"
             onClick={() => setPoints((p) => Math.max(0, (p ?? 12) - 1))}
-            className="neu focus-ring press flex size-12 items-center justify-center rounded-full"
+            className="neu focus-ring press flex size-14 items-center justify-center rounded-full"
           >
             <Minus className="size-5" aria-hidden />
           </button>
@@ -37,7 +37,7 @@ export function SheetPage() {
             type="button"
             aria-label="More points"
             onClick={() => setPoints((p) => Math.min(37, (p ?? 11) + 1))}
-            className="neu focus-ring press flex size-12 items-center justify-center rounded-full"
+            className="neu focus-ring press flex size-14 items-center justify-center rounded-full"
           >
             <Plus className="size-5" aria-hidden />
           </button>
@@ -45,7 +45,7 @@ export function SheetPage() {
             <button
               type="button"
               onClick={() => setPoints(null)}
-              className="focus-ring px-2 text-sm text-muted-foreground underline underline-offset-4"
+              className="focus-ring min-h-11 px-2 text-base text-muted-foreground underline underline-offset-4"
             >
               Clear
             </button>
@@ -56,7 +56,7 @@ export function SheetPage() {
       {SAYC_SHEET.map((section) => (
         <section key={section.id} className="reveal space-y-3">
           <h2 className="text-title font-heading font-normal">{section.title}</h2>
-          {section.intro && <p className="text-sm text-foreground/75">{section.intro}</p>}
+          {section.intro && <p className="text-base text-foreground/90">{section.intro}</p>}
           <Card className="p-0">
             <ul className="divide-y">
               {section.rows.map((row, i) => {
@@ -66,14 +66,18 @@ export function SheetPage() {
                   <li
                     key={i}
                     className={cn(
-                      'grid grid-cols-[4.5rem_1fr_auto] items-baseline gap-3 px-4 py-3 transition-colors duration-200 ease-soft',
+                      'flex flex-col gap-1 px-4 py-4 transition-colors duration-200 ease-soft',
                       hit && 'bg-accent text-accent-foreground',
                       dim && 'text-muted-foreground',
                     )}
                   >
-                    <span className="text-sm tabular-nums">{row.points}</span>
-                    <span className="text-sm">{row.shape}</span>
-                    <span className="font-heading text-lg font-medium">{row.bid}</span>
+                    <div className="flex items-baseline justify-between gap-4">
+                      <span className="text-base font-medium tabular-nums">
+                        {row.points} points
+                      </span>
+                      <span className="text-right font-heading text-xl">{row.bid}</span>
+                    </div>
+                    <span className="text-base">{row.shape}</span>
                   </li>
                 )
               })}
@@ -82,7 +86,7 @@ export function SheetPage() {
         </section>
       ))}
 
-      <p className="text-sm text-foreground/75">
+      <p className="text-sm text-foreground/90">
         Classes vary on details. If your teacher says something different, the teacher wins.
       </p>
     </div>

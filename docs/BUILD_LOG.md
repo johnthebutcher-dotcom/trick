@@ -2,6 +2,13 @@
 
 Newest first. One entry per push or decision. Future sessions start here, so write for someone with no memory of this chat.
 
+## 2026-10-22 — Renamed to Finesse; accessibility pass for older players
+
+- **Built:** app name Finesse (repo stays `trick`); 18px base size with a "Text size: Large" setting that scales the whole app (125%) via `html[data-size]`; text over the felt at 90% cream for contrast; every tappable thing ≥ 44px (header toggle 44, +/- 56, answer buttons 64, links given min-height); ✓/✗ icons inside the revealed answer buttons so colour is not the only signal, plus "correct" for screen readers; hand card ranks larger with a spoken "spades: 8 4 3 2" summary; verdict card is a polite live region; explanations one size up; cheat-sheet rows restacked (points + bid, then shape); settings rows stack on narrow screens via container queries.
+- **Decided:** one weight of Tenor Sans, so headings are regular; emphasis comes from size. Font sizes everywhere are rem so the Large setting lifts spacing too.
+- **Left out:** a dyslexia-friendly font option and a high-contrast mode (both easy to add as settings later); voice-over of hands beyond the suit summaries.
+- **Status:** CI green; preview republished.
+
 ## 2026-10-22 — Card-room look: felt, Tenor Sans, DM Sans
 
 - **Built:** `card-room` preset (app-local): the owner's felt photo as a fixed, covering backdrop in both modes; page-level text always cream, cards cream (light) or dark brown (dark) with their own foreground; dark green frame for header and tabs; Tenor Sans for headings and ranks, DM Sans for text, loaded from Google Fonts with system fallbacks; soft-UI controls take their fill from the surface they sit on (`on-felt` for the felt). Screens updated so nothing readable sits on the felt except titles, captions and the primary button.

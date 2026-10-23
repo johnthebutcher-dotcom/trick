@@ -46,6 +46,13 @@ async function write<T>(key: string, value: T): Promise<void> {
   }
 }
 
+/** Mirrors the text-size preference onto <html> so CSS can scale everything. */
+export function applyHandSize(size: Prefs['handSize']) {
+  if (typeof document === 'undefined') return
+  if (size === 'large') document.documentElement.dataset.size = 'large'
+  else delete document.documentElement.dataset.size
+}
+
 export const store = {
   progress: () => read<ProgressMap>(KEYS.progress, {}),
   saveProgress: (map: ProgressMap) => write(KEYS.progress, map),
@@ -71,7 +78,9 @@ export function useLearner() {
   const load = useCallback(() => {
     return Promise.all([store.progress(), store.sessions(), store.prefs()])
       .then(([progress, sessions, prefs]) => {
-        setState({ progress, sessions, prefs: { ...DEFAULT_PREFS, ...prefs } })
+        const merged = { ...DEFAULT_PREFS, ...prefs }
+        applyHandSize(merged.handSize)
+        setState({ progress, sessions, prefs: merged })
         setStatus('ready')
       })
       .catch(() => setStatus('error'))
@@ -101,6 +110,7 @@ export function useLearner() {
     void store.saveSessions(sessions)
   }, [])
   const setPrefs = useCallback((prefs: Prefs) => {
+    applyHandSize(prefs.handSize)
     setState((s) => (s ? { ...s, prefs } : s))
     void store.savePrefs(prefs)
   }, [])
