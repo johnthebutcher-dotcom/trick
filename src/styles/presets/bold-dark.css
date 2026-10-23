@@ -1,0 +1,85 @@
+/* Preset: bold-dark
+   Always dark, high contrast, electric lime accent, tight radii, no shadows.
+   Rules: bold-dark.rules.md */
+:root {
+  color-scheme: dark;
+  --preset-name: 'bold-dark';
+  --preset-mode: 'dark';
+
+  --background: oklch(13% 0.01 280);
+  --foreground: oklch(97% 0.005 280);
+  --card: oklch(18% 0.012 280);
+  --card-foreground: var(--foreground);
+  --muted: oklch(24% 0.014 280);
+  --muted-foreground: oklch(72% 0.015 280);
+  --border: oklch(32% 0.018 280);
+
+  --primary: oklch(88% 0.22 128);
+  --primary-foreground: oklch(14% 0.03 128);
+  --accent: oklch(26% 0.06 128);
+  --accent-foreground: oklch(92% 0.15 128);
+  --ring: var(--primary);
+
+  --danger: oklch(68% 0.2 22);
+  --danger-foreground: oklch(12% 0.03 22);
+  --success: oklch(78% 0.17 150);
+  --success-foreground: oklch(14% 0.03 150);
+  --warning: oklch(84% 0.16 85);
+  --warning-foreground: oklch(18% 0.04 85);
+
+  --radius: 6px;
+  --space-unit: 0.25rem;
+  --heading-tracking: -0.02em;
+
+  --font-body:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-heading: var(--font-body);
+
+  --elevation-card: none;
+  --elevation-popover: 0 0 0 1px var(--border);
+
+  /* Surfaces: what the app frame (header, tab bar) and cards are made of.
+     Point these at the glass tokens to turn the shell or cards to glass. */
+  --shell-bg: var(--card);
+  --shell-backdrop: none;
+  --shell-border: var(--border);
+  --shell-shadow: none;
+  --card-bg: var(--card);
+  --card-backdrop: none;
+  --card-border: var(--border);
+  --card-shadow: var(--elevation-card);
+
+  /* Glass material (glass, glass-strong utilities) */
+  --glass-bg: color-mix(in oklab, var(--card) 62%, transparent);
+  --glass-blur: 16px;
+  --glass-saturate: 150%;
+  --glass-border: color-mix(in oklab, var(--foreground) 12%, transparent);
+  --glass-highlight: inset 0 1px 0 color-mix(in oklab, white 35%, transparent);
+
+  /* Backdrop art (app-backdrop) and aurora colours (bg-aurora, text-gradient) */
+  --aurora-1: var(--primary);
+  --aurora-2: var(--accent-foreground);
+  --aurora-3: var(--primary);
+  --backdrop-image: none;
+  --backdrop-animation: none;
+  --backdrop-opacity: 1;
+  --backdrop-noise: 0;
+
+  /* Motion (ease-soft, ease-spring utilities) */
+  --motion-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Depth, soft UI, mesh and extra easing (effects-catalog.css) */
+  --elevation-stack:
+    0 1px 1px oklch(0% 0 0 / 0.04), 0 2px 2px oklch(0% 0 0 / 0.04), 0 4px 4px oklch(0% 0 0 / 0.05),
+    0 8px 8px oklch(0% 0 0 / 0.05), 0 16px 24px oklch(0% 0 0 / 0.07);
+  --neu-hi: color-mix(in oklab, white 5%, transparent);
+  --neu-lo: color-mix(in oklab, black 55%, transparent);
+  --mesh-blend: normal;
+  --heading-variation: normal;
+  --motion-snap: cubic-bezier(0.2, 0, 0, 1);
+  --motion-emphasized: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --motion-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* This preset is dark-only; data-theme toggles are ignored on purpose. */

@@ -1,0 +1,76 @@
+# Manual backup (and optional pause) of the app's Supabase project, runnable
+# from the GitHub app on a phone: Actions → Backup → Run workflow.
+#
+# Required secrets: SUPABASE_DB_URL (session pooler connection string),
+#                   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,
+#                   and for pausing: SUPABASE_ACCESS_TOKEN, SUPABASE_PROJECT_REF
+#
+# The backup is stored as a workflow artifact (kept 90 days, private to the
+# repo). It contains user data: download it somewhere safe before it expires.
+name: Backup
+
+on:
+  workflow_dispatch:
+    inputs:
+      pause:
+        description: 'Pause the project after a successful backup'
+        type: boolean
+        default: false
+  schedule:
+    # Monthly safety net on the 1st at 03:17 UTC. Remove for paused apps.
+    - cron: '17 3 1 * *'
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check configuration
+        run: |
+          for name in SUPABASE_DB_URL SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY; do
+            if [ -z "${!name}" ]; then echo "::error::Missing secret $name"; exit 1; fi
+          done
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: package.json
+          cache: npm
+      - run: npm ci
+      - uses: supabase/setup-cli@v3
+        with:
+          version: latest
+
+      - name: Run backup
+        run: scripts/backup.sh "${{ github.event.repository.name }}"
+
+      - name: Upload backup artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: supabase-backup-${{ github.run_id }}
+          path: backups/**/*.tar.gz
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Pause project
+        if: ${{ inputs.pause }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+        run: |
+          if [ -z "$SUPABASE_ACCESS_TOKEN" ] || [ -z "$SUPABASE_PROJECT_REF" ]; then
+            echo "::error::Pause requested but SUPABASE_ACCESS_TOKEN / SUPABASE_PROJECT_REF are not set"; exit 1
+          fi
+          code=$(curl -sS -o /tmp/pause.json -w '%{http_code}' -X POST \
+            "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/pause" \
+            -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN")
+          cat /tmp/pause.json; echo
+          if [ "$code" -ge 300 ]; then echo "::error::Pause failed with HTTP $code"; exit 1; fi
+          echo "::notice::Project $SUPABASE_PROJECT_REF paused. Resume from the Supabase dashboard."

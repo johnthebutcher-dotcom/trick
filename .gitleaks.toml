@@ -1,0 +1,10 @@
+# Extends the default gitleaks rules. Add allowlists here, never disable rules.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Known safe files"
+paths = [
+  '''\.env\.example$''',
+  '''package-lock\.json$''',
+]

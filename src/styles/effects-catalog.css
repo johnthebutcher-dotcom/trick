@@ -1,0 +1,368 @@
+/* Effects catalog: every effect beyond the basics in effects.css, each driven by
+   preset tokens and each with a fallback. docs/effects.md says what each one is
+   for and where a preset allows it. Reduced motion is enforced in index.css. */
+
+/* ---------- Registered custom properties (CSS Houdini @property) ----------
+   Registering a property makes it animatable, which is what lets gradients
+   rotate and slide with plain @keyframes instead of JavaScript. */
+@property --angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+@property --gx {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 0%;
+}
+@property --progress {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
+/* ---------- Keyframes ---------- */
+@keyframes spin-angle {
+  to {
+    --angle: 360deg;
+  }
+}
+@keyframes slide-gx {
+  from {
+    --gx: 0%;
+  }
+  to {
+    --gx: 100%;
+  }
+}
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes parallax-shift {
+  to {
+    transform: translate3d(0, calc(-160px * var(--parallax, 0.3)), 0);
+  }
+}
+@keyframes pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.85) translate3d(0, 6px, 0);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.035) translate3d(0, -2px, 0);
+  }
+  80% {
+    transform: scale(0.985) translate3d(0, 0, 0);
+  }
+  100% {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+}
+@keyframes shake {
+  10%,
+  90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+  20%,
+  80% {
+    transform: translate3d(2px, 0, 0);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+  40%,
+  60% {
+    transform: translate3d(4px, 0, 0);
+  }
+}
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--primary) 55%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 14px color-mix(in oklab, var(--primary) 0%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--primary) 0%, transparent);
+  }
+}
+@keyframes morph {
+  0%,
+  100% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+  50% {
+    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+  }
+}
+@keyframes wipe-in {
+  to {
+    clip-path: circle(150% at var(--vt-x, 50%) var(--vt-y, 50%));
+  }
+}
+
+/* ---------- Gradients ---------- */
+
+/* Conic sweep of the aurora colours; good for badges and hero corners. */
+@utility bg-conic {
+  background-image: conic-gradient(
+    from var(--angle, 0deg) at 50% 50%,
+    var(--aurora-1),
+    var(--aurora-2),
+    var(--aurora-3),
+    var(--aurora-1)
+  );
+}
+
+/* Progress ring. Set style="--progress: 72" (0-100). Thickness via --ring-thickness. */
+@utility ring-progress {
+  border-radius: 9999px;
+  background: conic-gradient(var(--primary) calc(var(--progress) * 1%), var(--muted) 0);
+  -webkit-mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - var(--ring-thickness, 8px)),
+    #000 calc(100% - var(--ring-thickness, 8px) + 1px)
+  );
+  mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - var(--ring-thickness, 8px)),
+    #000 calc(100% - var(--ring-thickness, 8px) + 1px)
+  );
+  transition: --progress 600ms var(--motion-soft);
+}
+
+/* Mesh gradient: five soft blobs blended over the background. */
+@utility bg-mesh {
+  background-color: var(--background);
+  background-image:
+    radial-gradient(
+      at 18% 14%,
+      color-mix(in oklab, var(--aurora-1) 70%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      at 86% 12%,
+      color-mix(in oklab, var(--aurora-2) 65%, transparent),
+      transparent 50%
+    ),
+    radial-gradient(
+      at 72% 82%,
+      color-mix(in oklab, var(--aurora-3) 60%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      at 12% 88%,
+      color-mix(in oklab, var(--primary) 45%, transparent),
+      transparent 50%
+    ),
+    radial-gradient(
+      at 50% 50%,
+      color-mix(in oklab, var(--accent) 35%, transparent),
+      transparent 60%
+    );
+  background-blend-mode: var(--mesh-blend, normal);
+}
+
+/* Animated gradient text: the registered --gx slides the gradient. */
+@utility text-gradient-animated {
+  background-image: linear-gradient(
+    100deg,
+    var(--aurora-1),
+    var(--aurora-2),
+    var(--aurora-3),
+    var(--aurora-1)
+  );
+  background-size: 300% 100%;
+  background-position: var(--gx) 50%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: slide-gx 6s linear infinite alternate;
+}
+
+/* Rotating gradient border with a soft glow behind it. Needs a border-radius. */
+@utility border-glow {
+  position: relative;
+  isolation: isolate;
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: conic-gradient(
+      from var(--angle),
+      var(--aurora-1),
+      var(--aurora-2),
+      var(--aurora-3),
+      var(--aurora-1)
+    );
+    animation: spin-angle var(--glow-speed, 6s) linear infinite;
+    pointer-events: none;
+  }
+  &::before {
+    z-index: -1;
+    padding: var(--glow-width, 1.5px);
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+  &::after {
+    z-index: -2;
+    filter: blur(14px);
+    opacity: var(--glow-opacity, 0.45);
+  }
+}
+
+/* ---------- Depth ---------- */
+
+/* Soft UI: raised and pressed, from the preset's --neu-hi / --neu-lo. */
+@utility neu {
+  background: var(--background);
+  box-shadow:
+    6px 6px 14px var(--neu-lo),
+    -6px -6px 14px var(--neu-hi);
+}
+@utility neu-inset {
+  background: var(--background);
+  box-shadow:
+    inset 5px 5px 10px var(--neu-lo),
+    inset -5px -5px 10px var(--neu-hi);
+}
+
+/* Glow for icons and SVG (drop-shadow follows the alpha, unlike box-shadow). */
+@utility drop-glow {
+  filter: drop-shadow(0 0 10px color-mix(in oklab, var(--primary) 55%, transparent))
+    drop-shadow(0 0 24px color-mix(in oklab, var(--primary) 25%, transparent));
+}
+
+/* ---------- Masks and clipping ---------- */
+@utility mask-fade-b {
+  -webkit-mask-image: linear-gradient(#000 55%, transparent);
+  mask-image: linear-gradient(#000 55%, transparent);
+}
+@utility mask-fade-x {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+@utility clip-slant {
+  clip-path: polygon(0 0, 100% 0, 100% 88%, 0 100%);
+}
+@utility rounded-blob {
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+}
+
+/* ---------- Motion ---------- */
+
+/* Lift on hover (pointer devices), press on touch. */
+@utility hover-lift {
+  transition:
+    transform 200ms var(--motion-soft),
+    box-shadow 200ms var(--motion-soft);
+  @media (hover: hover) {
+    &:hover {
+      transform: translate3d(0, -2px, 0);
+      box-shadow: var(--elevation-popover);
+    }
+  }
+  &:active {
+    transform: scale(0.98);
+  }
+}
+@utility press {
+  transition: transform 150ms var(--motion-spring);
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+/* Scroll-driven reveal: fades up as the element enters the viewport.
+   Browsers without animation-timeline show the element at rest. */
+@utility reveal {
+  @supports (animation-timeline: view()) {
+    animation: fade-up linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 45%;
+  }
+}
+
+/* Reading-progress bar pinned to the top; width follows document scroll. */
+@utility scroll-progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 3px;
+  z-index: 30;
+  transform-origin: left;
+  background: linear-gradient(90deg, var(--aurora-1), var(--aurora-2), var(--aurora-3));
+  display: none;
+  @supports (animation-timeline: scroll()) {
+    display: block;
+    animation: grow-x linear both;
+    animation-timeline: scroll(root);
+  }
+}
+
+/* Native parallax: moves against the scroll. Set --parallax 0.1 (slow) to 0.6 (fast). */
+@utility parallax {
+  @supports (animation-timeline: scroll()) {
+    animation: parallax-shift linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 100vh;
+  }
+}
+
+/* ---------- Typography ---------- */
+@utility font-optical {
+  font-optical-sizing: auto;
+}
+@utility font-heading-var {
+  font-variation-settings: var(--heading-variation, normal);
+}
+
+/* ---------- Chrome: focus and scrollbars ---------- */
+@utility focus-ring {
+  &:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: var(--ring-offset, 3px);
+  }
+}
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklab, var(--muted-foreground) 45%, transparent) transparent;
+}
+
+/* ---------- View Transitions ---------- */
+/* Route changes cross-fade quickly; the theme toggle wipes from the tap point
+   (set by lib/motion.ts). Falls back to no animation where unsupported. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 220ms;
+  animation-timing-function: var(--motion-soft);
+}
+:root[data-vt='theme']::view-transition-old(root) {
+  animation: none;
+}
+:root[data-vt='theme']::view-transition-new(root) {
+  clip-path: circle(0 at var(--vt-x, 50%) var(--vt-y, 50%));
+  animation: wipe-in 520ms var(--motion-soft) forwards;
+}

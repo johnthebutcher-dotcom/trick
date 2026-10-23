@@ -1,0 +1,96 @@
+/* Preset: clean-light
+   Neutral, airy, blue primary. Light first; follows the system for dark mode.
+   Rules: clean-light.rules.md */
+:root {
+  color-scheme: light dark;
+  --preset-name: 'clean-light';
+  --preset-mode: 'auto';
+
+  --background: light-dark(oklch(99.2% 0.002 260), oklch(15% 0.012 260));
+  --foreground: light-dark(oklch(22% 0.02 260), oklch(95% 0.008 260));
+  --card: light-dark(oklch(100% 0 0), oklch(20% 0.014 260));
+  --card-foreground: var(--foreground);
+  --muted: light-dark(oklch(96.5% 0.005 260), oklch(25% 0.014 260));
+  --muted-foreground: light-dark(oklch(50% 0.02 260), oklch(70% 0.015 260));
+  --border: light-dark(oklch(90% 0.008 260), oklch(30% 0.016 260));
+
+  --primary: light-dark(oklch(55% 0.2 262), oklch(72% 0.16 262));
+  --primary-foreground: light-dark(oklch(99% 0 0), oklch(15% 0.02 262));
+  --accent: light-dark(oklch(94% 0.04 262), oklch(30% 0.06 262));
+  --accent-foreground: light-dark(oklch(38% 0.15 262), oklch(90% 0.05 262));
+  --ring: var(--primary);
+
+  --danger: light-dark(oklch(55% 0.2 25), oklch(68% 0.18 25));
+  --danger-foreground: oklch(99% 0 0);
+  --success: light-dark(oklch(55% 0.15 150), oklch(70% 0.15 150));
+  --success-foreground: oklch(99% 0 0);
+  --warning: light-dark(oklch(78% 0.15 80), oklch(82% 0.15 80));
+  --warning-foreground: oklch(22% 0.03 80);
+
+  --radius: 12px;
+  --space-unit: 0.25rem;
+  --heading-tracking: -0.01em;
+
+  --font-body:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-heading: var(--font-body);
+
+  --elevation-card: 0 1px 2px oklch(0% 0 0 / 0.05), 0 4px 16px oklch(0% 0 0 / 0.06);
+  --elevation-popover: 0 8px 28px oklch(0% 0 0 / 0.14);
+
+  /* Surfaces: what the app frame (header, tab bar) and cards are made of.
+     Point these at the glass tokens to turn the shell or cards to glass. */
+  --shell-bg: var(--card);
+  --shell-backdrop: none;
+  --shell-border: var(--border);
+  --shell-shadow: none;
+  --card-bg: var(--card);
+  --card-backdrop: none;
+  --card-border: var(--border);
+  --card-shadow: var(--elevation-card);
+
+  /* Glass material (glass, glass-strong utilities) */
+  --glass-bg: color-mix(in oklab, var(--card) 62%, transparent);
+  --glass-blur: 16px;
+  --glass-saturate: 150%;
+  --glass-border: color-mix(in oklab, var(--foreground) 12%, transparent);
+  --glass-highlight: inset 0 1px 0 color-mix(in oklab, white 35%, transparent);
+
+  /* Backdrop art (app-backdrop) and aurora colours (bg-aurora, text-gradient) */
+  --aurora-1: var(--primary);
+  --aurora-2: var(--accent-foreground);
+  --aurora-3: var(--primary);
+  --backdrop-image: none;
+  --backdrop-animation: none;
+  --backdrop-opacity: 1;
+  --backdrop-noise: 0;
+
+  /* Motion (ease-soft, ease-spring utilities) */
+  --motion-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Depth, soft UI, mesh and extra easing (effects-catalog.css) */
+  --elevation-stack:
+    0 1px 1px oklch(0% 0 0 / 0.04), 0 2px 2px oklch(0% 0 0 / 0.04), 0 4px 4px oklch(0% 0 0 / 0.05),
+    0 8px 8px oklch(0% 0 0 / 0.05), 0 16px 24px oklch(0% 0 0 / 0.07);
+  --neu-hi: light-dark(
+    color-mix(in oklab, white 75%, transparent),
+    color-mix(in oklab, white 5%, transparent)
+  );
+  --neu-lo: light-dark(
+    color-mix(in oklab, black 12%, transparent),
+    color-mix(in oklab, black 55%, transparent)
+  );
+  --mesh-blend: normal;
+  --heading-variation: normal;
+  --motion-snap: cubic-bezier(0.2, 0, 0, 1);
+  --motion-emphasized: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --motion-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}

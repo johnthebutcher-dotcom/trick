@@ -1,0 +1,159 @@
+@import 'tailwindcss' source('../');
+
+/* Scan src/ only (not docs or skills), and skip the preset rules (markdown). */
+@source not './presets/*.md';
+
+/* The active style preset defines every design token on :root.
+   Switch presets with `npm run preset -- <name>` (rewrites presets/active.css). */
+@import './presets/active.css';
+
+/* Glass, backdrops, gradient text, shimmer and motion; all preset-driven. */
+@import './effects.css';
+@import './effects-catalog.css';
+
+/* Remove Tailwind's default palette, fonts, radii and shadows so that apps can
+   only use preset tokens. If a utility is missing, add a token, not a hex code. */
+@theme {
+  --color-*: initial;
+  --font-*: initial;
+  --shadow-*: initial;
+  --radius-*: initial;
+}
+
+/* Map preset tokens onto Tailwind utilities: bg-background, text-foreground,
+   bg-primary, rounded-lg, shadow-card, font-heading, p-4 (scaled by --space-unit)... */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  --font-sans: var(--font-body);
+  --font-heading: var(--font-heading);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+
+  --shadow-card: var(--elevation-card);
+  --shadow-popover: var(--elevation-popover);
+
+  --spacing: var(--space-unit);
+
+  /* Motion: ease-soft (settles), ease-spring (slight overshoot, for playful presets) */
+  --ease-soft: var(--motion-soft);
+  --ease-spring: var(--motion-spring);
+  --ease-snap: var(--motion-snap);
+  --ease-emphasized: var(--motion-emphasized);
+  --ease-bounce: var(--motion-bounce);
+
+  --shadow-stack: var(--elevation-stack);
+}
+
+/* Fluid type: text-hero / text-display / text-title scale with the viewport. */
+@theme {
+  --text-hero: clamp(2.25rem, 1.4rem + 4.2vw, 4.25rem);
+  --text-hero--line-height: 1.02;
+  --text-display: clamp(1.75rem, 1.2rem + 2.6vw, 2.75rem);
+  --text-display--line-height: 1.1;
+  --text-title: clamp(1.125rem, 1rem + 0.6vw, 1.375rem);
+  --text-title--line-height: 1.3;
+}
+
+/* Named animations (animate-fade-up, animate-float, animate-aurora); keyframes live in effects.css. */
+@theme {
+  --animate-fade-up: fade-up 420ms var(--motion-soft) both;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-aurora: aurora-drift 26s ease-in-out infinite alternate;
+  --animate-pop-in: pop-in 480ms var(--motion-spring) both;
+  --animate-shake: shake 500ms var(--motion-soft) both;
+  --animate-pulse-ring: pulse-ring 1.8s var(--motion-soft) infinite;
+  --animate-morph: morph 10s ease-in-out infinite;
+  --animate-spin-slow: spin-angle 8s linear infinite;
+}
+
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--muted-foreground) 45%, transparent) transparent;
+  }
+
+  body {
+    font-optical-sizing: auto;
+    min-height: 100dvh;
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior-y: none;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-heading);
+    letter-spacing: var(--heading-tracking, 0);
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  /* Respect reduced motion everywhere; presets may not override this. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer utilities {
+  /* iOS safe areas for standalone PWAs. */
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}

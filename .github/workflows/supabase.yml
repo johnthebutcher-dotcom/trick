@@ -1,0 +1,84 @@
+# Applies migrations, deploys Edge Functions and sets their secrets from GitHub
+# repository secrets. This is how a phone-only workflow reaches Supabase: the
+# owner pastes values into GitHub → Settings → Secrets and variables → Actions,
+# never into chat or the repo.
+#
+# Required secrets:  SUPABASE_ACCESS_TOKEN (personal token), SUPABASE_PROJECT_REF,
+#                    SUPABASE_DB_PASSWORD
+# Optional secrets:  AI_PROVIDER, AI_BASE_URL, AI_MODEL, AI_API_KEY, AI_DAILY_LIMIT,
+#                    ALLOWED_ORIGIN (set on the functions when present)
+#
+# Runs on pushes that touch supabase/ and on demand from the Actions tab.
+name: Supabase
+
+on:
+  push:
+    branches: [main]
+    paths: ['supabase/**', '.github/workflows/supabase.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supabase-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check configuration
+        id: config
+        run: |
+          if [ -z "$SUPABASE_ACCESS_TOKEN" ] || [ -z "$SUPABASE_PROJECT_REF" ] || [ -z "$SUPABASE_DB_PASSWORD" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Supabase secrets not set yet; skipping. Add SUPABASE_ACCESS_TOKEN, SUPABASE_PROJECT_REF and SUPABASE_DB_PASSWORD to repository secrets."
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: supabase/setup-cli@v3
+        if: steps.config.outputs.configured == 'true'
+        with:
+          version: latest
+
+      - name: Link project
+        if: steps.config.outputs.configured == 'true'
+        run: supabase link --project-ref "$SUPABASE_PROJECT_REF"
+
+      - name: Apply migrations
+        if: steps.config.outputs.configured == 'true'
+        run: supabase db push
+
+      - name: Deploy Edge Functions
+        if: steps.config.outputs.configured == 'true'
+        run: supabase functions deploy --no-verify-jwt
+
+      - name: Set function secrets
+        if: steps.config.outputs.configured == 'true'
+        env:
+          AI_PROVIDER: ${{ secrets.AI_PROVIDER }}
+          AI_BASE_URL: ${{ secrets.AI_BASE_URL }}
+          AI_MODEL: ${{ secrets.AI_MODEL }}
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          AI_DAILY_LIMIT: ${{ secrets.AI_DAILY_LIMIT }}
+          ALLOWED_ORIGIN: ${{ secrets.ALLOWED_ORIGIN }}
+        run: |
+          args=()
+          for name in AI_PROVIDER AI_BASE_URL AI_MODEL AI_API_KEY AI_DAILY_LIMIT ALLOWED_ORIGIN; do
+            value="${!name}"
+            if [ -n "$value" ]; then args+=("$name=$value"); fi
+          done
+          if [ "${#args[@]}" -eq 0 ]; then
+            echo "No function secrets provided; nothing to set."
+          else
+            supabase secrets set "${args[@]}"
+            echo "Set: $(printf '%s ' "${args[@]%%=*}")"
+          fi

@@ -1,0 +1,121 @@
+/* Preset: aurora-glass
+   Liquid-glass shell and cards over a slow aurora backdrop. Violet primary,
+   cyan and pink aurora, large radii, soft depth. Light and dark both finished.
+   Rules: aurora-glass.rules.md */
+:root {
+  color-scheme: light dark;
+  --preset-name: 'aurora-glass';
+  --preset-mode: 'auto';
+
+  --background: light-dark(oklch(97.5% 0.01 285), oklch(11% 0.025 285));
+  --foreground: light-dark(oklch(20% 0.03 285), oklch(96% 0.01 285));
+  --card: light-dark(oklch(100% 0 0), oklch(19% 0.03 285));
+  --card-foreground: var(--foreground);
+  --muted: light-dark(oklch(94% 0.015 285), oklch(26% 0.03 285));
+  --muted-foreground: light-dark(oklch(46% 0.04 285), oklch(72% 0.03 285));
+  --border: light-dark(oklch(88% 0.02 285), oklch(32% 0.03 285));
+
+  --primary: light-dark(oklch(52% 0.23 292), oklch(78% 0.17 292));
+  --primary-foreground: light-dark(oklch(99% 0 0), oklch(14% 0.04 292));
+  --accent: light-dark(oklch(93% 0.05 210), oklch(28% 0.07 210));
+  --accent-foreground: light-dark(oklch(38% 0.13 210), oklch(90% 0.1 210));
+  --ring: var(--primary);
+
+  --danger: light-dark(oklch(55% 0.2 22), oklch(70% 0.18 22));
+  --danger-foreground: oklch(99% 0 0);
+  --success: light-dark(oklch(55% 0.15 155), oklch(74% 0.15 155));
+  --success-foreground: oklch(14% 0.03 155);
+  --warning: light-dark(oklch(80% 0.15 85), oklch(84% 0.15 85));
+  --warning-foreground: oklch(20% 0.04 85);
+
+  --radius: 18px;
+  --space-unit: 0.25rem;
+  --heading-tracking: -0.02em;
+
+  --font-body:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-heading: var(--font-body);
+
+  --elevation-card: 0 10px 36px light-dark(oklch(30% 0.1 290 / 0.12), oklch(0% 0 0 / 0.45));
+  --elevation-popover: 0 16px 48px light-dark(oklch(30% 0.1 290 / 0.2), oklch(0% 0 0 / 0.6));
+
+  /* Surfaces: the whole frame and every card are glass. */
+  --shell-bg: var(--glass-bg);
+  --shell-backdrop: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  --shell-border: var(--glass-border);
+  --shell-shadow: var(--glass-highlight);
+  --card-bg: var(--glass-bg);
+  --card-backdrop: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  --card-border: var(--glass-border);
+  --card-shadow: var(--glass-highlight), var(--elevation-card);
+
+  /* Glass material */
+  --glass-bg: light-dark(
+    color-mix(in oklab, white 58%, transparent),
+    color-mix(in oklab, oklch(22% 0.03 285) 55%, transparent)
+  );
+  --glass-blur: 22px;
+  --glass-saturate: 170%;
+  --glass-border: light-dark(
+    color-mix(in oklab, white 70%, transparent),
+    color-mix(in oklab, white 14%, transparent)
+  );
+  --glass-highlight: inset 0 1px 0
+    light-dark(
+      color-mix(in oklab, white 90%, transparent),
+      color-mix(in oklab, white 22%, transparent)
+    );
+
+  /* Aurora */
+  --aurora-1: light-dark(oklch(78% 0.17 292), oklch(52% 0.24 292));
+  --aurora-2: light-dark(oklch(86% 0.12 205), oklch(58% 0.17 210));
+  --aurora-3: light-dark(oklch(85% 0.13 340), oklch(56% 0.2 340));
+  --backdrop-image:
+    radial-gradient(
+      58% 52% at 18% 20%,
+      color-mix(in oklab, var(--aurora-1) 70%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      52% 60% at 84% 26%,
+      color-mix(in oklab, var(--aurora-2) 60%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      66% 58% at 46% 96%,
+      color-mix(in oklab, var(--aurora-3) 55%, transparent),
+      transparent 72%
+    );
+  --backdrop-animation: aurora-drift 26s ease-in-out infinite alternate;
+  --backdrop-opacity: 0.9;
+  --backdrop-noise: 0.06;
+
+  /* Motion: a touch of spring on this preset */
+  --motion-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+
+  /* Depth, soft UI, mesh and extra easing (effects-catalog.css) */
+  --elevation-stack:
+    0 1px 1px oklch(0% 0 0 / 0.04), 0 2px 2px oklch(0% 0 0 / 0.04), 0 4px 4px oklch(0% 0 0 / 0.05),
+    0 8px 8px oklch(0% 0 0 / 0.05), 0 16px 24px oklch(0% 0 0 / 0.07);
+  --neu-hi: light-dark(
+    color-mix(in oklab, white 75%, transparent),
+    color-mix(in oklab, white 5%, transparent)
+  );
+  --neu-lo: light-dark(
+    color-mix(in oklab, black 12%, transparent),
+    color-mix(in oklab, black 55%, transparent)
+  );
+  --mesh-blend: light-dark(multiply, screen);
+  --heading-variation: normal;
+  --motion-snap: cubic-bezier(0.2, 0, 0, 1);
+  --motion-emphasized: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --motion-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}

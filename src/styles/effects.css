@@ -1,0 +1,193 @@
+/* Effects layer: glass surfaces, animated backdrops, gradient text, shimmer, motion.
+   Everything here is driven by preset tokens (see presets/_tokens.md) so a preset
+   can turn the whole app to glass or give it an aurora backdrop without any
+   component changes. All effects degrade: no backdrop-filter → solid card;
+   reduced motion → static (handled globally in index.css). */
+
+/* ---------- Keyframes (plain CSS so preset tokens can reference them) ---------- */
+@keyframes aurora-drift {
+  0% {
+    transform: translate3d(-3%, -2%, 0) scale(1.05) rotate(0deg);
+  }
+  100% {
+    transform: translate3d(3%, 3%, 0) scale(1.18) rotate(5deg);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -6px, 0);
+  }
+}
+
+/* ---------- Preset-driven surfaces ---------- */
+
+/* The app frame: header and tab bar. */
+@utility surface-shell {
+  background: var(--shell-bg, var(--card));
+  border-color: var(--shell-border, var(--border));
+  box-shadow: var(--shell-shadow, none);
+  -webkit-backdrop-filter: var(--shell-backdrop, none);
+  backdrop-filter: var(--shell-backdrop, none);
+}
+
+/* Cards, sheets and panels. */
+@utility surface-card {
+  background: var(--card-bg, var(--card));
+  border: 1px solid var(--card-border, var(--border));
+  box-shadow: var(--card-shadow, var(--elevation-card));
+  -webkit-backdrop-filter: var(--card-backdrop, none);
+  backdrop-filter: var(--card-backdrop, none);
+}
+
+/* ---------- Glass material (explicit, for heroes, overlays, floating controls) ---------- */
+@utility glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-highlight), var(--elevation-card);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  @supports not (backdrop-filter: blur(1px)) {
+    background: var(--card);
+  }
+}
+
+/* More opaque; use when body text sits on a busy backdrop. */
+@utility glass-strong {
+  background: color-mix(in oklab, var(--glass-bg) 100%, var(--card) 35%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-highlight), var(--elevation-card);
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 1.5)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(calc(var(--glass-blur) * 1.5)) saturate(var(--glass-saturate));
+  @supports not (backdrop-filter: blur(1px)) {
+    background: var(--card);
+  }
+}
+
+/* A specular edge: a 1px gradient border that catches light top-left and fades
+   bottom-right. Pair with `glass` on heroes and floating buttons; needs
+   `relative` and a border-radius on the element. */
+@utility glass-edge {
+  position: relative;
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    pointer-events: none;
+    background: linear-gradient(
+      135deg,
+      color-mix(in oklab, white 70%, transparent) 0%,
+      color-mix(in oklab, white 10%, transparent) 40%,
+      transparent 60%,
+      color-mix(in oklab, var(--foreground) 18%, transparent) 100%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+}
+
+/* ---------- Backdrop art ---------- */
+
+/* Full-screen layer behind the app; AppShell renders it once. Presets set
+   --backdrop-image / --backdrop-animation / --backdrop-noise; default is nothing. */
+@utility app-backdrop {
+  position: fixed;
+  inset: -12%;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--backdrop-image, none);
+  background-size: 100% 100%;
+  opacity: var(--backdrop-opacity, 1);
+  animation: var(--backdrop-animation, none);
+  will-change: transform;
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: var(--backdrop-noise, 0);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 160px 160px;
+    mix-blend-mode: soft-light;
+  }
+}
+
+/* Aurora as a background on any element (hero sections, cards). */
+@utility bg-aurora {
+  background-image:
+    radial-gradient(
+      60% 55% at 18% 22%,
+      color-mix(in oklab, var(--aurora-1) 60%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      55% 60% at 82% 28%,
+      color-mix(in oklab, var(--aurora-2) 50%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      70% 60% at 50% 95%,
+      color-mix(in oklab, var(--aurora-3) 45%, transparent),
+      transparent 72%
+    );
+  background-color: var(--background);
+}
+
+/* ---------- Text and skeletons ---------- */
+
+/* Gradient text from the aurora colours. One heading per screen, never body text. */
+@utility text-gradient {
+  background-image: linear-gradient(
+    100deg,
+    var(--aurora-1) 0%,
+    var(--aurora-2) 55%,
+    var(--aurora-3) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Loading placeholder with a moving sheen. */
+@utility skeleton {
+  background-image: linear-gradient(
+    90deg,
+    var(--muted) 0%,
+    color-mix(in oklab, var(--muted) 55%, var(--card)) 50%,
+    var(--muted) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}

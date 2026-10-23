@@ -1,0 +1,21 @@
+version: 2
+updates:
+  # Monthly, grouped, so a phone user sees one PR per month per ecosystem.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      all-npm:
+        patterns: ['*']
+    ignore:
+      # TypeScript stays on the 6.x line until the Vite template moves on.
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      all-actions:
+        patterns: ['*']

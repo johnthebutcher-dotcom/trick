@@ -1,0 +1,52 @@
+{
+  "_comment": "Index of saved looks. The active one is whichever active.css imports; switch with `npm run preset -- <name>`. Each preset is a token file (see _tokens.md) plus a rules file that Claude reads before building UI. Apps default to dark mode; `mode: auto` presets offer a sun/moon toggle, `mode: dark` presets hide it.",
+  "presets": [
+    {
+      "name": "clean-light",
+      "file": "clean-light.css",
+      "rules": "clean-light.rules.md",
+      "mode": "auto",
+      "themeColor": "#2563eb",
+      "summary": "Neutral, airy, blue primary. The default when no style is requested.",
+      "keywords": ["clean", "simple", "minimal", "professional", "productivity", "default"]
+    },
+    {
+      "name": "bold-dark",
+      "file": "bold-dark.css",
+      "rules": "bold-dark.rules.md",
+      "mode": "dark",
+      "themeColor": "#0f0e14",
+      "summary": "Always dark, high contrast, lime accent, tight radii, no shadows.",
+      "keywords": ["dark", "bold", "neon", "punchy", "nightlife", "spirits", "music", "fitness"]
+    },
+    {
+      "name": "warm-editorial",
+      "file": "warm-editorial.css",
+      "rules": "warm-editorial.rules.md",
+      "mode": "auto",
+      "themeColor": "#b5543c",
+      "summary": "Cream and ink, terracotta primary, serif headings, hairline borders.",
+      "keywords": ["warm", "cozy", "elegant", "editorial", "craft", "recipes", "tasting", "journal"]
+    },
+    {
+      "name": "aurora-glass",
+      "file": "aurora-glass.css",
+      "rules": "aurora-glass.rules.md",
+      "mode": "auto",
+      "themeColor": "#120f1f",
+      "summary": "Liquid-glass shell and cards over a slow aurora backdrop; violet, cyan, pink; large radii.",
+      "keywords": [
+        "glass",
+        "liquid glass",
+        "frosted",
+        "aurora",
+        "gradient",
+        "premium",
+        "sleek",
+        "modern",
+        "ios",
+        "expensive"
+      ]
+    }
+  ]
+}
