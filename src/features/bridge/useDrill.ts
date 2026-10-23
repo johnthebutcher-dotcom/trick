@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 import { withViewTransition } from '@/lib/motion'
-import { buildQuestion, type Question, type SkillId } from './skills'
+import { buildQuestion, type Question, type SkillId, type System } from './skills'
 import { planDrill, record, today, type ProgressMap } from './scheduler'
 import type { Session } from './store'
 
@@ -31,9 +31,10 @@ export function useDrill(
   sessions: Session[],
   setSessions: (s: Session[]) => void,
   skill?: SkillId,
+  system: System = 'sayc',
 ) {
   // Planned once per mount; the page remounts (key) for a new drill.
-  const [plan] = useState(() => planDrill(progress, skill))
+  const [plan] = useState(() => planDrill(progress, skill, system))
   const [sessionId] = useState(() => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`)
   const [startedAt] = useState(() => new Date().toISOString())
   const [index, setIndex] = useState(0)

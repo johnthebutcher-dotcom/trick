@@ -11,7 +11,7 @@ import {
   type Hand,
   type Suit,
 } from '@/features/bridge/cards'
-import { openOrPass, openingBid } from '@/features/bridge/systems/sayc'
+import { rulesFor, type SystemId } from '@/features/bridge/systems'
 import { next, partner, sameSide, type Seat } from './deal'
 
 export type Strain = 'C' | 'D' | 'H' | 'S' | 'NT'
@@ -104,8 +104,14 @@ const suitOfBid = (s: string): Strain =>
     ? 'NT'
     : (Object.entries(STRAIN_LABEL).find(([, v]) => v === s.slice(1))?.[0] as Strain)
 
-/** The bot (and the hint). Standard American, kept to what the drills teach. */
-export function advise(entries: AuctionEntry[], seat: Seat, hand: Hand): Advice {
+/** The bot (and the hint). Follows the chosen system, kept to what the drills teach. */
+export function advise(
+  entries: AuctionEntry[],
+  seat: Seat,
+  hand: Hand,
+  system: SystemId = 'sayc',
+): Advice {
+  const { openOrPass, openingBid, oneNoTrump } = rulesFor(system)
   const points = hcp(hand)
   const len = lengths(hand)
   const mine = entries.filter((e) => e.seat === seat)
@@ -130,18 +136,22 @@ export function advise(entries: AuctionEntry[], seat: Seat, hand: Hand): Advice 
   if (partnerBid && partnerBid.call.type === 'bid' && !iHaveBid) {
     const pb = partnerBid.call
     if (pb.strain === 'NT' && pb.level === 1) {
-      if (points <= 7)
-        return { call: { type: 'pass' }, why: `${points} points opposite 15–17: pass.` }
-      if (points <= 9)
+      const ntLabel = `${oneNoTrump.min}–${oneNoTrump.max}`
+      // 1NT shows a known point count; aim for ~25 combined for game, ~23 to invite.
+      const inviteFrom = 25 - oneNoTrump.max
+      const gameFrom = 26 - oneNoTrump.min
+      if (points < inviteFrom)
+        return { call: { type: 'pass' }, why: `${points} points opposite ${ntLabel}: pass.` }
+      if (points < gameFrom)
         return legal(
           entries,
           { type: 'bid', level: 2, strain: 'NT' },
-          `${points} points: invite with 2NT.`,
+          `${points} points opposite ${ntLabel}: invite with 2NT.`,
         )
       return legal(
         entries,
         { type: 'bid', level: 3, strain: 'NT' },
-        `${points} points opposite 15–17 is enough for game: 3NT.`,
+        `${points} points opposite ${ntLabel} is enough for game: 3NT.`,
       )
     }
     if (pb.strain !== 'NT' && pb.level === 1) {

@@ -5,6 +5,7 @@ import { Button, ButtonLink, Card, CardDescription, CardTitle } from '@/componen
 import { ErrorState, LoadingState } from '@/components/states'
 import { CardBack, CardChip } from '@/components/bridge/CardChip'
 import { SUITS, type Card as PlayingCard, type Hand } from '@/features/bridge/cards'
+import type { System } from '@/features/bridge/skills'
 import { useLearner } from '@/features/bridge/store'
 import {
   callLabel,
@@ -38,6 +39,7 @@ export function PlayPage() {
     <Table
       key={board}
       board={board}
+      system={learner.state.prefs.system}
       tips={learner.state.prefs.tips}
       setTips={(v) => learner.setPrefs({ ...learner.state!.prefs, tips: v })}
     />
@@ -46,14 +48,16 @@ export function PlayPage() {
 
 function Table({
   board,
+  system,
   tips,
   setTips,
 }: {
   board: number
+  system: System
   tips: boolean
   setTips: (v: boolean) => void
 }) {
-  const { state, call, play, hint, result } = useGame(board)
+  const { state, call, play, hint, result } = useGame(board, system)
   const [shown, setShown] = useState<{ text: string; card?: PlayingCard; call?: Call } | null>(null)
   const humanTurn =
     controller(state, state.turn) === 'human' &&

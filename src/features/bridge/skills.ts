@@ -17,16 +17,21 @@ import {
   SUITS,
   type Hand,
 } from './cards'
-import { isTeachableOpenPass, isTeachableOpener, openOrPass, openingBid } from './systems/sayc'
+import { rulesFor } from './systems'
+import type { SystemId } from './systems/types'
 
-export type System = 'sayc' | 'two-over-one' | 'acol'
-export const SYSTEMS: { id: System; name: string; available: boolean }[] = [
-  { id: 'sayc', name: 'Standard American', available: true },
-  { id: 'two-over-one', name: '2-over-1', available: false },
-  { id: 'acol', name: 'ACOL', available: false },
-]
+export type System = SystemId
+export { SYSTEMS } from './systems'
 
 export type SkillId = 'hcp' | 'shape-points' | 'open-pass' | 'opening-bid'
+
+/**
+ * Point-counting is the same in every system, so those skills keep one shared
+ * progress ladder. Only the bidding skills differ by system, so switching
+ * systems keeps your point-counting progress and gives each system its own
+ * bidding ladder.
+ */
+const SYSTEM_SPECIFIC: ReadonlySet<SkillId> = new Set<SkillId>(['open-pass', 'opening-bid'])
 
 export interface Skill {
   id: SkillId
@@ -74,19 +79,34 @@ export interface Question {
   more: string
 }
 
-export function questionId(skill: SkillId, n: number): string {
-  return `sayc:${skill}:${n}`
+/**
+ * A question id. Point-counting skills are system-independent, so their ids are
+ * just `skill:n`. Bidding skills carry the system, `system:skill:n`, so each
+ * system keeps its own spaced-repetition ladder and switching systems does not
+ * mix the two up. The default system keeps the id stable for shared skills.
+ */
+export function questionId(skill: SkillId, n: number, system: System = 'sayc'): string {
+  return SYSTEM_SPECIFIC.has(skill) ? `${system}:${skill}:${n}` : `${skill}:${n}`
 }
 
-export function parseQuestionId(id: string): { skill: SkillId; n: number } | null {
-  const [, skill, n] = id.split(':')
-  if (!skill || !n) return null
-  if (!SKILLS.some((s) => s.id === skill)) return null
-  return { skill: skill as SkillId, n: Number(n) }
+export function parseQuestionId(id: string): { skill: SkillId; n: number; system: System } | null {
+  const parts = id.split(':')
+  // `system:skill:n` (bidding) or `skill:n` (point counting).
+  const [a, b, c] = parts
+  if (parts.length === 3 && a && b && c) {
+    if (!SKILLS.some((s) => s.id === b)) return null
+    return { skill: b as SkillId, n: Number(c), system: a as System }
+  }
+  if (parts.length === 2 && a && b) {
+    if (!SKILLS.some((s) => s.id === a)) return null
+    return { skill: a as SkillId, n: Number(b), system: 'sayc' }
+  }
+  return null
 }
 
 /** Deal the n-th hand for a skill, skipping hands that make poor teaching examples. */
-function handFor(skill: SkillId, n: number): Hand {
+function handFor(skill: SkillId, n: number, system: System): Hand {
+  const { isTeachableOpenPass, isTeachableOpener } = rulesFor(system)
   // Walk seeds until a teachable hand; deterministic because the walk is.
   let attempt = 0
   for (;;) {
@@ -120,9 +140,10 @@ function numberOptions(correct: number, seed: number, count = 4, min = 0): strin
 export function buildQuestion(id: string): Question | null {
   const parsed = parseQuestionId(id)
   if (!parsed) return null
-  const { skill, n } = parsed
-  const hand = handFor(skill, n)
+  const { skill, n, system } = parsed
+  const hand = handFor(skill, n, system)
   const seed = hashString(id)
+  const { openOrPass, openingBid, twoNoTrump } = rulesFor(system)
 
   if (skill === 'hcp') {
     const points = hcp(hand)
@@ -179,7 +200,7 @@ export function buildQuestion(id: string): Question | null {
   const d = openingBid(hand)
   const points = hcp(hand)
   const options = ['1♣', '1♦', '1♥', '1♠', '1NT']
-  if (points >= 20) options.push('2NT')
+  if (points >= twoNoTrump.min) options.push('2NT')
   return {
     id,
     skill,

@@ -4,7 +4,7 @@
  * step 0 (due tomorrow); right answers move one step up. "Today's drill" is
  * due questions first, then new ones from the current skill, up to 8.
  */
-import { questionId, SKILLS, type SkillId } from './skills'
+import { questionId, SKILLS, type SkillId, type System } from './skills'
 
 export const INTERVALS = [1, 3, 7, 16, 35] as const
 export const DRILL_SIZE = 8
@@ -79,10 +79,10 @@ export function currentSkill(map: ProgressMap): SkillId {
   return unlocked[unlocked.length - 1] ?? 'hcp'
 }
 
-/** Next unseen question index for a skill. */
-export function nextIndex(map: ProgressMap, skill: SkillId): number {
+/** Next unseen question index for a skill in the given system. */
+export function nextIndex(map: ProgressMap, skill: SkillId, system: System = 'sayc'): number {
   let n = 0
-  while (map[questionId(skill, n)]) n++
+  while (map[questionId(skill, n, system)]) n++
   return n
 }
 
@@ -93,8 +93,17 @@ export interface DrillPlan {
   skill: SkillId
 }
 
-/** Build today's drill: due first (oldest due first), then new hands from `skill` (default: current). */
-export function planDrill(map: ProgressMap, skill?: SkillId, now = new Date()): DrillPlan {
+/**
+ * Build today's drill: due first (oldest due first), then new hands from
+ * `skill` (default: current). New bidding hands come from the active `system`;
+ * due hands are whatever is due, in whichever system the learner met them.
+ */
+export function planDrill(
+  map: ProgressMap,
+  skill?: SkillId,
+  system: System = 'sayc',
+  now = new Date(),
+): DrillPlan {
   const date = today(now)
   const target = skill ?? currentSkill(map)
   const due = Object.values(map)
@@ -103,9 +112,9 @@ export function planDrill(map: ProgressMap, skill?: SkillId, now = new Date()): 
     .slice(0, DRILL_SIZE)
     .map((p) => p.id)
   const ids = [...due]
-  let n = nextIndex(map, target)
+  let n = nextIndex(map, target, system)
   while (ids.length < DRILL_SIZE) {
-    const id = questionId(target, n++)
+    const id = questionId(target, n++, system)
     if (!ids.includes(id)) ids.push(id)
   }
   return { ids, dueCount: due.length, newCount: ids.length - due.length, skill: target }

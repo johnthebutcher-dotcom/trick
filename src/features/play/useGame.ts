@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { hashString, type Card, type Hand } from '@/features/bridge/cards'
+import type { SystemId } from '@/features/bridge/systems'
 import {
   advise,
   contractOf,
@@ -125,7 +126,7 @@ function applyCard(state: GameState, card: Card): GameState {
   return { ...state, hands, played, current, turn: next(seat) }
 }
 
-export function useGame(seed: number) {
+export function useGame(seed: number, system: SystemId = 'sayc') {
   const [state, setState] = useState<GameState>(() => initial(seed))
   const timer = useRef<number | null>(null)
 
@@ -137,7 +138,7 @@ export function useGame(seed: number) {
       setState((s) => {
         if (controller(s, s.turn) !== 'bot') return s
         if (s.phase === 'auction')
-          return applyCall(s, advise(s.auction, s.turn, s.hands[s.turn]).call)
+          return applyCall(s, advise(s.auction, s.turn, s.hands[s.turn], system).call)
         if (s.phase === 'play' && s.contract) {
           const a = advisePlay(
             s.turn,
@@ -155,13 +156,13 @@ export function useGame(seed: number) {
     return () => {
       if (timer.current) window.clearTimeout(timer.current)
     }
-  }, [state])
+  }, [state, system])
 
   const call = useCallback((c: Call) => setState((s) => applyCall(s, c)), [])
   const play = useCallback((card: Card) => setState((s) => applyCard(s, card)), [])
   const hint = (): { text: string; card?: Card; call?: Call } | null => {
     if (state.phase === 'auction') {
-      const a = advise(state.auction, state.turn, state.hands[state.turn])
+      const a = advise(state.auction, state.turn, state.hands[state.turn], system)
       return { text: a.why, call: a.call }
     }
     if (state.phase === 'play' && state.contract) {

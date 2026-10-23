@@ -4,7 +4,7 @@ import { Check, X } from 'lucide-react'
 import { Button, ButtonLink, Card, CardDescription, CardTitle } from '@/components/ui'
 import { ErrorState, LoadingState } from '@/components/states'
 import { HandView } from '@/components/bridge/HandView'
-import { SKILLS, type SkillId } from '@/features/bridge/skills'
+import { SKILLS, type SkillId, type System } from '@/features/bridge/skills'
 import { useLearner } from '@/features/bridge/store'
 import { useDrill } from '@/features/bridge/useDrill'
 import { cn } from '@/lib/utils'
@@ -25,6 +25,7 @@ export function DrillPage() {
     <Drill
       key={key}
       skill={skillId}
+      system={learner.state.prefs.system}
       handSize={learner.state.prefs.handSize}
       progress={learner.state.progress}
       setProgress={learner.setProgress}
@@ -36,6 +37,7 @@ export function DrillPage() {
 
 function Drill(props: {
   skill?: SkillId
+  system: System
   handSize: 'normal' | 'large'
   progress: ReturnType<typeof useLearner>['state'] extends infer S
     ? S extends { progress: infer P }
@@ -52,6 +54,7 @@ function Drill(props: {
     props.sessions,
     props.setSessions,
     props.skill,
+    props.system,
   )
   const [showMore, setShowMore] = useState(false)
   const skillMeta = SKILLS.find((s) => s.id === state.skill)

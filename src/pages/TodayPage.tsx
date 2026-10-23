@@ -19,12 +19,12 @@ export function TodayPage() {
   if (learner.status === 'loading' || !learner.state) return <LoadingState variant="screen" />
   if (learner.status === 'error') return <ErrorState onRetry={learner.reload} />
 
-  const { progress, sessions } = learner.state
+  const { progress, sessions, prefs } = learner.state
   const date = today()
   const answeredToday = sessions.filter((s) => s.date === date).reduce((sum, s) => sum + s.total, 0)
   const goal = 8
   const pct = Math.min(100, Math.round((answeredToday / goal) * 100))
-  const plan = planDrill(progress)
+  const plan = planDrill(progress, undefined, prefs.system)
   const s = streak(sessions.map((x) => x.date))
   const unlocked = unlockedSkills(progress)
   const current = SKILLS.find((x) => x.id === plan.skill)

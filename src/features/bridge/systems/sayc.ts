@@ -14,12 +14,8 @@ import {
   type Hand,
   type Suit,
 } from '../cards'
-
-export interface Decision {
-  bid: string
-  why: string
-  more: string
-}
+import { SAYC_SHEET } from '../sheet'
+import type { Decision, RuleModule } from './types'
 
 export function openOrPass(hand: Hand): Decision {
   const points = hcp(hand)
@@ -139,4 +135,15 @@ export function isTeachableOpenPass(hand: Hand): boolean {
   // Weak-two shapes (6-card suit with 5–11) are a separate lesson.
   if (points <= 11 && Object.values(len).some((n) => n === 6)) return false
   return true
+}
+
+/** Standard American, packaged as a rule module for the system registry. */
+export const rules: RuleModule = {
+  openOrPass,
+  openingBid,
+  isTeachableOpener,
+  isTeachableOpenPass,
+  oneNoTrump: { min: 15, max: 17 },
+  twoNoTrump: { min: 20, max: 21 },
+  sheet: SAYC_SHEET,
 }

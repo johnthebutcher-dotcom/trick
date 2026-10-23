@@ -1,20 +1,28 @@
 import { useState } from 'react'
 import { Minus, Plus } from 'lucide-react'
 import { Card } from '@/components/ui'
-import { SAYC_SHEET } from '@/features/bridge/sheet'
+import { ErrorState, LoadingState } from '@/components/states'
+import { rulesFor, SYSTEMS } from '@/features/bridge/systems'
+import { useLearner } from '@/features/bridge/store'
 import { cn } from '@/lib/utils'
 
 /** The bidding ladder on one screen. Set your points and the matching rows light up. */
 export function SheetPage() {
   const [points, setPoints] = useState<number | null>(null)
+  const learner = useLearner()
+
+  if (learner.status === 'loading' || !learner.state) return <LoadingState variant="screen" />
+  if (learner.status === 'error') return <ErrorState onRetry={learner.reload} />
+
+  const { system } = learner.state.prefs
+  const sheet = rulesFor(system).sheet
+  const systemName = SYSTEMS.find((s) => s.id === system)?.name ?? 'Standard American'
 
   return (
     <div className="mx-auto flex max-w-xl flex-col gap-8">
       <header className="space-y-1">
         <h1 className="text-display font-heading font-normal">Cheat-sheet</h1>
-        <p className="text-foreground/90">
-          Standard American. Count your points, then find the row.
-        </p>
+        <p className="text-foreground/90">{systemName}. Count your points, then find the row.</p>
       </header>
 
       <Card className="flex flex-col gap-4 @sm:flex-row @sm:items-center @sm:justify-between">
@@ -53,7 +61,7 @@ export function SheetPage() {
         </div>
       </Card>
 
-      {SAYC_SHEET.map((section) => (
+      {sheet.map((section) => (
         <section key={section.id} className="reveal space-y-3">
           <h2 className="text-title font-heading font-normal">{section.title}</h2>
           {section.intro && <p className="text-base text-foreground/90">{section.intro}</p>}
