@@ -36,10 +36,10 @@ export function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-xl space-y-4">
-      <h1 className="text-display font-heading font-medium">Settings</h1>
+      <h1 className="text-display font-heading font-normal">Settings</h1>
 
       <Card className="space-y-3">
-        <CardTitle className="font-heading font-medium">Bidding system</CardTitle>
+        <CardTitle className="font-heading font-normal">Bidding system</CardTitle>
         <div className="grid gap-2" role="radiogroup" aria-label="Bidding system">
           {SYSTEMS.map((s) => (
             <button
@@ -66,7 +66,7 @@ export function SettingsPage() {
 
       <Card className="flex items-center justify-between gap-4">
         <div>
-          <CardTitle className="font-heading font-medium">Card size</CardTitle>
+          <CardTitle className="font-heading font-normal">Card size</CardTitle>
           <CardDescription>Bigger cards for the iPad or tired eyes.</CardDescription>
         </div>
         <div className="flex gap-2" role="radiogroup" aria-label="Card size">
@@ -90,7 +90,7 @@ export function SettingsPage() {
 
       <Card className="flex items-center justify-between gap-4">
         <div>
-          <CardTitle className="font-heading font-medium">Appearance</CardTitle>
+          <CardTitle className="font-heading font-normal">Appearance</CardTitle>
           <CardDescription>Dark by default. Tap to switch.</CardDescription>
         </div>
         <ThemeToggle />
@@ -98,7 +98,7 @@ export function SettingsPage() {
 
       {configured ? (
         <Card className="space-y-3">
-          <CardTitle className="font-heading font-medium">Account</CardTitle>
+          <CardTitle className="font-heading font-normal">Account</CardTitle>
           {user ? (
             <>
               <CardDescription>
@@ -119,7 +119,7 @@ export function SettingsPage() {
         </Card>
       ) : (
         <Card className="space-y-1">
-          <CardTitle className="font-heading font-medium">Your progress</CardTitle>
+          <CardTitle className="font-heading font-normal">Your progress</CardTitle>
           <CardDescription>Saved on this device. No account needed.</CardDescription>
         </Card>
       )}
@@ -127,7 +127,7 @@ export function SettingsPage() {
       {/* App stores require account deletion from inside the app. Keep this section. */}
       {configured && user && (
         <Card className="space-y-3">
-          <CardTitle className="font-heading font-medium">Delete account</CardTitle>
+          <CardTitle className="font-heading font-normal">Delete account</CardTitle>
           <CardDescription>
             Removes your account and everything you've saved. This cannot be undone.
           </CardDescription>

@@ -11,8 +11,8 @@ export function SheetPage() {
   return (
     <div className="mx-auto flex max-w-xl flex-col gap-8">
       <header className="space-y-1">
-        <h1 className="text-display font-heading font-medium">Cheat-sheet</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-display font-heading font-normal">Cheat-sheet</h1>
+        <p className="text-foreground/80">
           Standard American. Count your points, then find the row.
         </p>
       </header>
@@ -20,7 +20,7 @@ export function SheetPage() {
       <Card className="flex items-center justify-between gap-4">
         <div>
           <p className="text-xs tracking-[0.12em] text-muted-foreground uppercase">My points</p>
-          <p className="text-display font-heading font-medium tabular-nums">
+          <p className="text-display font-heading font-normal tabular-nums">
             {points === null ? '—' : points}
           </p>
         </div>
@@ -45,7 +45,7 @@ export function SheetPage() {
             <button
               type="button"
               onClick={() => setPoints(null)}
-              className="focus-ring px-2 text-sm text-muted-foreground underline-offset-4 hover:underline"
+              className="focus-ring px-2 text-sm text-muted-foreground underline underline-offset-4"
             >
               Clear
             </button>
@@ -55,8 +55,8 @@ export function SheetPage() {
 
       {SAYC_SHEET.map((section) => (
         <section key={section.id} className="reveal space-y-3">
-          <h2 className="text-title font-heading font-medium">{section.title}</h2>
-          {section.intro && <p className="text-sm text-muted-foreground">{section.intro}</p>}
+          <h2 className="text-title font-heading font-normal">{section.title}</h2>
+          {section.intro && <p className="text-sm text-foreground/75">{section.intro}</p>}
           <Card className="p-0">
             <ul className="divide-y">
               {section.rows.map((row, i) => {
@@ -82,7 +82,7 @@ export function SheetPage() {
         </section>
       ))}
 
-      <p className="text-sm text-muted-foreground">
+      <p className="text-sm text-foreground/75">
         Classes vary on details. If your teacher says something different, the teacher wins.
       </p>
     </div>

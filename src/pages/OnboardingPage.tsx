@@ -38,11 +38,11 @@ export function OnboardingPage() {
   return (
     <div className="mx-auto flex min-h-[70dvh] max-w-md flex-col gap-8 pt-6">
       <div key={index} className="animate-pop-in space-y-3">
-        <p className="text-xs tracking-[0.12em] text-muted-foreground uppercase">
+        <p className="text-xs tracking-[0.12em] text-foreground/75 uppercase">
           {index + 1} of {steps.length}
         </p>
-        <h1 className="text-display font-heading font-medium">{step.title}</h1>
-        <p className="text-lg leading-relaxed text-muted-foreground">{step.body}</p>
+        <h1 className="text-display font-heading font-normal">{step.title}</h1>
+        <p className="text-lg leading-relaxed text-foreground/85">{step.body}</p>
       </div>
 
       {index === 2 && <HandView hand={sample} className="animate-pop-in" />}

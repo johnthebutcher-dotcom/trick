@@ -2,6 +2,13 @@
 
 Newest first. One entry per push or decision. Future sessions start here, so write for someone with no memory of this chat.
 
+## 2026-10-22 — Card-room look: felt, Tenor Sans, DM Sans
+
+- **Built:** `card-room` preset (app-local): the owner's felt photo as a fixed, covering backdrop in both modes; page-level text always cream, cards cream (light) or dark brown (dark) with their own foreground; dark green frame for header and tabs; Tenor Sans for headings and ranks, DM Sans for text, loaded from Google Fonts with system fallbacks; soft-UI controls take their fill from the surface they sit on (`on-felt` for the felt). Screens updated so nothing readable sits on the felt except titles, captions and the primary button.
+- **Decided:** warm-editorial in the starter stays untouched; the felt look is specific to this app. Icons and theme colour now dark green.
+- **Left out:** a light felt; light mode keeps the felt and switches the cards, which reads better than a pale table.
+- **Status:** CI green; preview republished.
+
 ## 2026-10-22 — First playable: drill engine, Today, cheat-sheet, settings
 
 - **Built:** cards/evaluation with a seeded dealer (stable hand ids); Standard American rules for open-or-pass (13+, rule of 20) and opening bids (1NT 15–17, 2NT 20–21, five-card majors, longer minor, 1♦ with 4-4, 1♣ with 3-3); four skills (count points, points with shape, open or pass, which bid opens) with generated questions, one-line why and a longer "show me"; spaced repetition (steps 1/3/7/16/35 days, wrong resets); local-first store (idb-keyval); drill screen with the hand card (shadow-stack), neumorphic answer buttons, green/red reveal with shake and pop-in, View Transitions between hands, summary with misses; Today with progress ring, soft streak copy and the skill ladder (unlocks after 16 hands of the previous skill); cheat-sheet with a points stepper that highlights matching rows; settings (system with 2/1 and ACOL greyed, card size, appearance, account only when Supabase is configured); onboarding without sign-in. 27 tests. Suit colour tokens (`--suit-red/--suit-black`) added to every preset for this app.

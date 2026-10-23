@@ -12,8 +12,8 @@ The owner's mother, learning bridge, likely in a club or class setting, who lose
 
 ## Style
 
-- Preset: `warm-editorial` (reason: calm, card-room feel, easy on the eyes, owner's pick). Dark by default with the sun/moon toggle.
-- Name: Trick. Icon letter T, theme colour `#b5543c`.
+- Preset: `card-room` (Trick-only, derived from warm-editorial): green felt backdrop in both modes (owner's photo, `public/felt.webp`), cream cards in light and dark-brown cards in dark, Tenor Sans headings, DM Sans text (Google Fonts, system fallbacks). Dark by default with the sun/moon toggle.
+- Name: Trick. Icon letter T, theme colour `#1d3a26`.
 
 ## Effects (chosen before build)
 

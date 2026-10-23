@@ -1,0 +1,131 @@
+/* Preset: card-room (Trick only)
+   Green felt behind everything, cream or dark-brown cards on top, Tenor Sans
+   headings, DM Sans text. Dark by default; light mode keeps the felt and
+   switches the cards to cream. Rules: card-room.rules.md */
+:root {
+  color-scheme: light dark;
+  --preset-name: 'card-room';
+  --preset-mode: 'auto';
+
+  /* The page itself is felt in both modes, so page-level text is always cream. */
+  --background: light-dark(oklch(34% 0.09 150), oklch(26% 0.08 150));
+  --foreground: oklch(95% 0.015 85);
+  --card: light-dark(oklch(97.5% 0.012 85), oklch(21% 0.018 60));
+  --card-foreground: light-dark(oklch(24% 0.02 60), oklch(93% 0.012 85));
+  --muted: light-dark(oklch(90% 0.02 85), oklch(28% 0.02 60));
+  --muted-foreground: light-dark(oklch(46% 0.03 60), oklch(72% 0.02 80));
+  --border: light-dark(oklch(84% 0.025 80), oklch(34% 0.02 60));
+
+  --primary: light-dark(oklch(58% 0.16 42), oklch(74% 0.14 45));
+  --primary-foreground: light-dark(oklch(99% 0.005 85), oklch(18% 0.03 40));
+  --accent: light-dark(oklch(92% 0.05 60), oklch(31% 0.05 45));
+  --accent-foreground: light-dark(oklch(40% 0.12 40), oklch(92% 0.06 60));
+  --ring: var(--primary);
+
+  --danger: light-dark(oklch(52% 0.19 25), oklch(70% 0.17 25));
+  --danger-foreground: oklch(99% 0 0);
+  --success: light-dark(oklch(50% 0.13 150), oklch(72% 0.13 150));
+  --success-foreground: oklch(99% 0 0);
+  --warning: light-dark(oklch(76% 0.13 80), oklch(82% 0.13 80));
+  --warning-foreground: oklch(24% 0.03 80);
+
+  --radius: 6px;
+  --space-unit: 0.27rem;
+  --heading-tracking: 0.01em;
+
+  --font-body:
+    'DM Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+  --font-heading:
+    'Tenor Sans', ui-serif, 'Iowan Old Style', 'Palatino Linotype', Georgia, 'Times New Roman',
+    serif;
+
+  --elevation-card: 0 2px 6px oklch(0% 0 0 / 0.25), 0 12px 32px oklch(0% 0 0 / 0.3);
+  --elevation-popover: 0 16px 48px oklch(0% 0 0 / 0.45);
+
+  /* Surfaces: a dark green frame in both modes; cards float on the felt. */
+  --shell-bg: light-dark(oklch(22% 0.07 150), oklch(17% 0.06 150));
+  --shell-backdrop: none;
+  --shell-border: oklch(100% 0 0 / 0.08);
+  --shell-shadow: 0 1px 0 oklch(100% 0 0 / 0.06) inset;
+  --card-bg: var(--card);
+  --card-backdrop: none;
+  --card-border: light-dark(oklch(100% 0 0 / 0.5), oklch(100% 0 0 / 0.08));
+  --card-shadow: var(--elevation-card);
+
+  /* Glass material (unused in Trick; kept so the token set stays complete) */
+  --glass-bg: color-mix(in oklab, var(--card) 62%, transparent);
+  --glass-blur: 16px;
+  --glass-saturate: 150%;
+  --glass-border: color-mix(in oklab, var(--foreground) 12%, transparent);
+  --glass-highlight: inset 0 1px 0 color-mix(in oklab, white 35%, transparent);
+
+  /* Backdrop: the felt photo, covering the viewport, no animation. */
+  --aurora-1: var(--primary);
+  --aurora-2: var(--accent-foreground);
+  --aurora-3: var(--primary);
+  --backdrop-image: url('/felt.webp');
+  --backdrop-animation: none;
+  --backdrop-opacity: 1;
+  --backdrop-noise: 0;
+
+  --motion-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --elevation-stack:
+    0 1px 1px oklch(0% 0 0 / 0.08), 0 2px 2px oklch(0% 0 0 / 0.08), 0 4px 4px oklch(0% 0 0 / 0.1),
+    0 8px 8px oklch(0% 0 0 / 0.1), 0 16px 24px oklch(0% 0 0 / 0.14);
+  --neu-hi: light-dark(
+    color-mix(in oklab, white 70%, transparent),
+    color-mix(in oklab, white 6%, transparent)
+  );
+  --neu-lo: light-dark(
+    color-mix(in oklab, black 18%, transparent),
+    color-mix(in oklab, black 55%, transparent)
+  );
+  --mesh-blend: normal;
+  --heading-variation: normal;
+  --motion-snap: cubic-bezier(0.2, 0, 0, 1);
+  --motion-emphasized: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --motion-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* Playing-card suit colours: on the card face, so they follow card-foreground. */
+  --suit-red: light-dark(oklch(48% 0.2 25), oklch(72% 0.17 25));
+  --suit-black: var(--card-foreground);
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+/* The felt covers the viewport edge to edge and stays put. */
+.app-backdrop {
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+}
+
+/* Soft-UI controls sit on the felt or on a card; derive their fill from the
+   surface behind them rather than the page background. */
+.neu,
+.neu-inset {
+  background: var(--neu-surface, var(--card));
+  color: var(--card-foreground);
+}
+.on-felt {
+  --neu-surface: var(--background);
+  color: var(--foreground);
+}
+
+/* The sun/moon button: a translucent pill on the dark frame, card-coloured in cards. */
+button[aria-label^='Switch to'] {
+  background: var(--muted);
+  color: var(--card-foreground);
+}
+.surface-shell button[aria-label^='Switch to'] {
+  background: oklch(100% 0 0 / 0.12);
+  color: var(--foreground);
+}

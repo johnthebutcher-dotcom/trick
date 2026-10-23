@@ -15,7 +15,7 @@ export default defineConfig({
       disable: process.env.PREVIEW_BUILD === '1',
       registerType: 'autoUpdate',
       injectRegister: 'auto',
-      includeAssets: ['favicon.svg', 'apple-touch-icon-180x180.png'],
+      includeAssets: ['favicon.svg', 'apple-touch-icon-180x180.png', 'felt.webp'],
       manifest: {
         // Per app: update name, short_name, description and theme_color
         // (theme_color should match the active preset's --primary).
@@ -24,8 +24,8 @@ export default defineConfig({
         description: 'Five-minute bridge drills, one idea at a time.',
         start_url: '/',
         display: 'standalone',
-        background_color: '#1f1a17',
-        theme_color: '#b5543c',
+        background_color: '#1d3a26',
+        theme_color: '#1d3a26',
         icons: [
           { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
           { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },

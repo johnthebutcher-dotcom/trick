@@ -64,7 +64,7 @@ function Drill(props: {
 
   return (
     <div className="mx-auto flex max-w-xl flex-col gap-5">
-      <div className="flex items-center justify-between text-sm text-muted-foreground">
+      <div className="flex items-center justify-between text-sm text-foreground/75">
         <span className="text-xs tracking-[0.12em] uppercase">{skillMeta?.title}</span>
         <span className="tabular-nums">
           {state.index + 1} of {state.ids.length}
@@ -73,7 +73,7 @@ function Drill(props: {
 
       <HandView hand={q.hand} size={props.handSize} />
 
-      <h1 className="text-title font-heading font-medium">{q.prompt}</h1>
+      <h1 className="text-title font-heading font-normal">{q.prompt}</h1>
 
       <div
         className={cn(
@@ -98,10 +98,10 @@ function Drill(props: {
               }}
               className={cn(
                 'focus-ring press h-16 rounded-md font-heading text-2xl font-medium transition-[background-color,color,box-shadow] duration-200 ease-soft',
-                !revealed && 'neu',
+                !revealed && 'neu on-felt',
                 revealed && isAnswer && 'bg-success text-success-foreground',
                 revealed && picked && !isAnswer && 'animate-shake bg-danger text-danger-foreground',
-                revealed && !picked && !isAnswer && 'neu-inset text-muted-foreground',
+                revealed && !picked && !isAnswer && 'neu-inset on-felt opacity-60',
               )}
             >
               {option}
@@ -121,11 +121,11 @@ function Drill(props: {
             ) : (
               <X className="size-5 text-danger" aria-hidden />
             )}
-            <CardTitle className="font-heading font-medium">
+            <CardTitle className="font-heading font-normal">
               {correct ? 'Yes.' : `It's ${q.answer}.`}
             </CardTitle>
           </div>
-          <CardDescription className="text-base text-foreground">{q.why}</CardDescription>
+          <CardDescription className="text-base text-card-foreground">{q.why}</CardDescription>
           {showMore ? (
             <p className="text-sm leading-relaxed text-muted-foreground">{q.more}</p>
           ) : (
@@ -148,7 +148,7 @@ function Drill(props: {
         ) : (
           <Link
             to="/"
-            className="focus-ring block py-3 text-center text-sm text-muted-foreground underline-offset-4 hover:underline"
+            className="focus-ring block py-3 text-center text-sm text-foreground/80 underline underline-offset-4"
           >
             Stop for now
           </Link>
@@ -166,10 +166,10 @@ function Summary({ state }: { state: ReturnType<typeof useDrill>['state'] }) {
   return (
     <div className="mx-auto flex max-w-xl flex-col gap-6">
       <div className="animate-pop-in space-y-2 py-4 text-center">
-        <p className="text-display font-heading font-medium tabular-nums">
+        <p className="text-display font-heading font-normal tabular-nums">
           {right} of {state.answered.length}
         </p>
-        <p className="text-muted-foreground">
+        <p className="text-foreground/85">
           {all
             ? 'Every one. That skill is settling in.'
             : right >= state.answered.length / 2
@@ -180,7 +180,7 @@ function Summary({ state }: { state: ReturnType<typeof useDrill>['state'] }) {
 
       {missed.length > 0 && (
         <Card className="space-y-3">
-          <CardTitle className="font-heading font-medium">Worth a second look</CardTitle>
+          <CardTitle className="font-heading font-normal">Worth a second look</CardTitle>
           <ul className="divide-y">
             {missed.map(({ question, chosen }) => (
               <li key={question.id} className="space-y-1 py-3">

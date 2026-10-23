@@ -47,6 +47,15 @@
         "ios",
         "expensive"
       ]
+    },
+    {
+      "name": "card-room",
+      "file": "card-room.css",
+      "rules": "card-room.rules.md",
+      "mode": "auto",
+      "themeColor": "#1d3a26",
+      "summary": "Trick only: green felt backdrop, cream/dark cards, Tenor Sans + DM Sans.",
+      "keywords": ["felt", "card room", "bridge", "vintage", "editorial"]
     }
   ]
 }

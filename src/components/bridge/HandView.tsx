@@ -17,7 +17,10 @@ export function HandView({
 }) {
   return (
     <div
-      className={cn('shadow-stack rounded-lg border bg-card px-5 py-4', className)}
+      className={cn(
+        'shadow-stack rounded-lg border bg-card px-5 py-4 text-card-foreground',
+        className,
+      )}
       aria-label="Your hand"
     >
       <ul className="space-y-2">

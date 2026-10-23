@@ -48,8 +48,8 @@ export function TodayPage() {
           aria-label={`${answeredToday} of ${goal} hands today`}
         />
         <div className="space-y-1">
-          <p className="text-display font-heading font-medium">{greeting}</p>
-          <p className="text-muted-foreground">
+          <p className="text-display font-heading font-normal">{greeting}</p>
+          <p className="text-foreground/80">
             {answeredToday > 0
               ? `${answeredToday} of ${goal} hands today.`
               : `Today: ${current?.title ?? 'a drill'}.`}
@@ -63,7 +63,7 @@ export function TodayPage() {
       </ButtonLink>
 
       <section className="reveal space-y-3">
-        <h2 className="text-xs tracking-[0.12em] text-muted-foreground uppercase">
+        <h2 className="text-xs tracking-[0.12em] text-foreground/75 uppercase">
           Practise one thing
         </h2>
         <Card className="p-0">
@@ -105,14 +105,14 @@ export function TodayPage() {
             })}
           </ul>
         </Card>
-        <CardDescription>
+        <p className="text-sm text-foreground/75">
           Hands you miss come back tomorrow. Hands you know come back less and less.
-        </CardDescription>
+        </p>
       </section>
 
       <section className="reveal">
         <Card className="space-y-1">
-          <CardTitle className="font-heading font-medium">At the table?</CardTitle>
+          <CardTitle className="font-heading font-normal">At the table?</CardTitle>
           <CardDescription>
             The cheat-sheet tab has every bid on one screen. It works without a connection.
           </CardDescription>
