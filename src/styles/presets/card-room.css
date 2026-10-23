@@ -197,3 +197,61 @@ html[data-size='large'] {
   color: var(--foreground);
   text-shadow: 0 1px 3px oklch(0% 0 0 / 0.5);
 }
+
+/* ---------- Suit colours (two- or four-colour) ---------- */
+/* Each suit inks itself through its own class, so the four-colour option is a
+   single token swap. Default: spades/clubs black, hearts/diamonds red. Four
+   colour (Settings → data-suits='four'): clubs green, diamonds blue, so no two
+   suits share a colour — easy to tell apart at a glance. */
+:root {
+  --suit-blue: light-dark(oklch(45% 0.16 250), oklch(70% 0.14 250));
+  --suit-green: light-dark(oklch(45% 0.13 150), oklch(68% 0.14 152));
+}
+.suit-ink-S {
+  color: var(--suit-black);
+}
+.suit-ink-H {
+  color: var(--suit-red);
+}
+.suit-ink-D {
+  color: var(--suit-red);
+}
+.suit-ink-C {
+  color: var(--suit-black);
+}
+:root[data-suits='four'] .suit-ink-D {
+  color: var(--suit-blue);
+}
+:root[data-suits='four'] .suit-ink-C {
+  color: var(--suit-green);
+}
+
+/* ---------- Dyslexia-friendly / high-legibility text ---------- */
+/* Swap to Atkinson Hyperlegible (built for low-vision reading) and open up the
+   spacing. Headings included — legibility wins over the Tenor Sans character
+   while this is on. */
+:root[data-font='readable'] {
+  --font-body: 'Atkinson Hyperlegible', 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-heading: 'Atkinson Hyperlegible', ui-sans-serif, system-ui, sans-serif;
+  --heading-tracking: 0;
+}
+:root[data-font='readable'] body {
+  letter-spacing: 0.02em;
+  word-spacing: 0.06em;
+  line-height: 1.6;
+}
+
+/* ---------- High contrast ---------- */
+/* Push ink, borders and suit colours harder for older eyes. Keeps the felt. */
+:root[data-contrast='high'] {
+  --card-foreground: light-dark(oklch(12% 0.02 60), oklch(99% 0.005 85));
+  --foreground: oklch(99% 0.004 85);
+  --muted-foreground: light-dark(oklch(30% 0.03 60), oklch(88% 0.02 80));
+  --border: light-dark(oklch(20% 0.02 60), oklch(82% 0.02 60));
+  --suit-red: light-dark(oklch(42% 0.24 25), oklch(80% 0.2 25));
+  --suit-blue: light-dark(oklch(36% 0.2 250), oklch(82% 0.16 250));
+  --suit-green: light-dark(oklch(36% 0.17 150), oklch(80% 0.16 152));
+}
+:root[data-contrast='high'] .surface-card {
+  border-width: 2px;
+}

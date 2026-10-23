@@ -1,4 +1,4 @@
-import { HAND_SUITS, RED_SUITS, SUIT_NAME, SUIT_SYMBOL, type Hand } from '@/features/bridge/cards'
+import { HAND_SUITS, SUIT_NAME, SUIT_SYMBOL, type Hand } from '@/features/bridge/cards'
 import { cn } from '@/lib/utils'
 
 /**
@@ -25,7 +25,6 @@ export function HandView({
     >
       <ul className="space-y-3">
         {HAND_SUITS.map((suit) => {
-          const red = RED_SUITS.has(suit)
           const ranks = hand[suit]
           return (
             <li key={suit} className="flex items-baseline gap-4">
@@ -34,7 +33,7 @@ export function HandView({
                 className={cn(
                   'w-9 shrink-0 text-center font-heading',
                   size === 'large' ? 'text-5xl' : 'text-4xl',
-                  red ? 'text-suit-red' : 'text-suit-black',
+                  `suit-ink-${suit}`,
                 )}
               >
                 {SUIT_SYMBOL[suit]}

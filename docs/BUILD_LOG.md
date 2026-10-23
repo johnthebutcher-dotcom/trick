@@ -2,6 +2,19 @@
 
 Newest first. One entry per push or decision. Future sessions start here, so write for someone with no memory of this chat.
 
+## 2026-10-23 — Four-colour suits, accessibility, sounds (+ joker), table fits the screen
+
+- **Built:** four owner-requested additions, all driven by new `Prefs` fields (`fourColour`, `dyslexia`, `contrast`, `soundMode`) mirrored onto `<html>` by `applyAppearance` the same way `applyHandSize` already was. Old stored prefs (which had `sound: boolean`, unused) merge forward cleanly; `sound` was replaced by `soundMode`.
+  - **Four-colour suits** (Settings → Suit colours: Two/Four). Each suit inks itself through a `suit-ink-{S,H,D,C}` class; four-colour is a single token swap under `:root[data-suits='four']` — clubs green (`--suit-green`), diamonds blue (`--suit-blue`), spades black, hearts red. Applied in `CardChip`, `HandView` and the bidding box.
+  - **Dyslexia-friendly text** (`data-font='readable'`): Atkinson Hyperlegible (added to the Google Fonts link) with looser letter/word spacing and line-height; headings included while on.
+  - **High contrast** (`data-contrast='high'`): overrides card-room ink, borders and the three suit colours harder, and thickens card borders. Keeps the felt.
+  - **Sounds** (Off / Gentle / Joker) in `features/play/sound.ts`, fired from the drill answer tap (`playAnswer(correct, mode)`). Gentle = soft chime / soft tone; **joker = a random fart on a wrong answer, a random cheer (applause / crowd / slide-whistle) on a right one** — the owner's mum's request. All nine WAVs were **synthesised** (numpy) into `public/sounds/`; no real clips (the sandbox can't fetch audio) — owner can send real clips to swap in. Default is Off. Added `webp` + `wav` to the PWA `globPatterns` so wood, felt and the sounds precache for offline.
+- **Play table fits the screen:** opponents (N/E/W) are now compact backs + a count instead of a full row; seat labels smaller; gaps tighter; bid buttons `h-11`. The page is two flex columns: the table + your hand on one side, the bidding box + coach on the other. In portrait they stack (your hand above the bidding box, so her cards always show); in landscape they sit side by side, and your hand is lifted to the top of its column (`landscape:order-first`) so it stays on-screen next to the bidding box.
+- **Decided:** bid chips stay on cards (never wood), so four-colour and suit contrast hold. Dyslexia font uses Atkinson Hyperlegible (reliable via Google Fonts, built for legibility) rather than OpenDyslexic (not on Google Fonts); can swap if she prefers that specific look. Sounds only fire in drills (right/wrong there); Play has no per-move right/wrong. Appearance prefs apply after load like text size (one brief flash on cold start, not mirrored pre-paint).
+- **Left out:** real recorded joker clips (synthesised for now); per-suit custom colour choice; a landscape layout for the full play phase beyond what the two columns already give; still no first-name greeting (owner hasn't given it) and still don't know which system her class uses.
+- **Checked:** `npm run check` green (54 tests, build). Screenshots at 390px portrait and 844×420 landscape, dark + light, with four-colour and high-contrast on: suit colours, the compact table, the two-column landscape (hand + bidding box both visible) and the Settings controls all correct.
+- **Status:** pushed to `main`.
+
 ## 2026-10-23 — Visual pass: suit order, wood controls, top-right cluster
 
 - **Built:** three owner-requested look changes.

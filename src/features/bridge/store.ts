@@ -17,14 +17,30 @@ export interface Session {
   total: number
 }
 
+/** Off, gentle chimes, or the joker pack (farts and cheers). */
+export type SoundMode = 'off' | 'gentle' | 'joker'
+
 export interface Prefs {
   system: System
   handSize: 'normal' | 'large'
-  sound: boolean
+  soundMode: SoundMode
   tips: boolean
+  /** Give clubs and diamonds their own colour so suits don't blur together. */
+  fourColour: boolean
+  /** A high-legibility typeface with looser spacing. */
+  dyslexia: boolean
+  contrast: 'normal' | 'high'
 }
 
-export const DEFAULT_PREFS: Prefs = { system: 'sayc', handSize: 'normal', sound: false, tips: true }
+export const DEFAULT_PREFS: Prefs = {
+  system: 'sayc',
+  handSize: 'normal',
+  soundMode: 'off',
+  tips: true,
+  fourColour: false,
+  dyslexia: false,
+  contrast: 'normal',
+}
 
 const KEYS = {
   progress: 'trick:progress',
@@ -54,6 +70,20 @@ export function applyHandSize(size: Prefs['handSize']) {
   else delete document.documentElement.dataset.size
 }
 
+/** Mirror the appearance prefs onto <html> so CSS can react: text size,
+ *  four-colour suits, the readable font, and high-contrast mode. */
+export function applyAppearance(prefs: Prefs) {
+  if (typeof document === 'undefined') return
+  const root = document.documentElement
+  applyHandSize(prefs.handSize)
+  if (prefs.fourColour) root.dataset.suits = 'four'
+  else delete root.dataset.suits
+  if (prefs.dyslexia) root.dataset.font = 'readable'
+  else delete root.dataset.font
+  if (prefs.contrast === 'high') root.dataset.contrast = 'high'
+  else delete root.dataset.contrast
+}
+
 export const store = {
   progress: () => read<ProgressMap>(KEYS.progress, {}),
   saveProgress: (map: ProgressMap) => write(KEYS.progress, map),
@@ -80,7 +110,7 @@ export function useLearner() {
     return Promise.all([store.progress(), store.sessions(), store.prefs()])
       .then(([progress, sessions, prefs]) => {
         const merged = { ...DEFAULT_PREFS, ...prefs }
-        applyHandSize(merged.handSize)
+        applyAppearance(merged)
         setState({ progress, sessions, prefs: merged })
         setStatus('ready')
       })
@@ -111,7 +141,7 @@ export function useLearner() {
     void store.saveSessions(sessions)
   }, [])
   const setPrefs = useCallback((prefs: Prefs) => {
-    applyHandSize(prefs.handSize)
+    applyAppearance(prefs)
     setState((s) => (s ? { ...s, prefs } : s))
     void store.savePrefs(prefs)
   }, [])

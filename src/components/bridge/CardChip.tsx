@@ -1,4 +1,4 @@
-import { RED_SUITS, SUIT_NAME, SUIT_SYMBOL, type Card } from '@/features/bridge/cards'
+import { SUIT_NAME, SUIT_SYMBOL, type Card } from '@/features/bridge/cards'
 import { cn } from '@/lib/utils'
 
 const rankText = (r: Card['rank']) => (r === 'T' ? '10' : r)
@@ -19,7 +19,6 @@ export function CardChip({
   highlight?: boolean
   className?: string
 }) {
-  const red = RED_SUITS.has(card.suit)
   const body = (
     <>
       <span
@@ -43,7 +42,7 @@ export function CardChip({
   const classes = cn(
     'inline-flex flex-col items-center justify-center gap-0.5 rounded-md border bg-card text-card-foreground shadow-card',
     size === 'lg' ? 'h-20 w-14' : size === 'md' ? 'h-16 w-12' : 'h-12 w-9',
-    red ? 'text-suit-red' : 'text-suit-black',
+    `suit-ink-${card.suit}`,
     highlight && 'ring-4 ring-primary',
     onClick && !disabled && 'press focus-ring cursor-pointer hover-lift',
     disabled && onClick && 'opacity-40',

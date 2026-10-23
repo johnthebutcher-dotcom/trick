@@ -39,7 +39,7 @@ export default defineConfig({
       },
       workbox: {
         // App shell is precached; everything else goes to the network.
-        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2,webp,wav}'],
         navigateFallback: '/index.html',
         // Never serve cached responses for Supabase; auth and data must be live.
         navigateFallbackDenylist: [/^\/auth\/callback/],

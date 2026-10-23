@@ -90,6 +90,111 @@ export function SettingsPage() {
 
       <Card className="flex flex-col gap-4 @sm:flex-row @sm:items-center @sm:justify-between">
         <div>
+          <CardTitle className="font-heading font-normal">Suit colours</CardTitle>
+          <CardDescription>
+            Four colours gives clubs and diamonds their own colour, so suits are easy to tell apart.
+          </CardDescription>
+        </div>
+        <div className="flex gap-2" role="radiogroup" aria-label="Suit colours">
+          {([false, true] as const).map((four) => (
+            <button
+              key={String(four)}
+              type="button"
+              role="radio"
+              aria-checked={prefs.fourColour === four}
+              onClick={() => learner.setPrefs({ ...prefs, fourColour: four })}
+              className={cn(
+                'focus-ring h-12 min-w-[5.5rem] rounded-md px-4 text-base transition-shadow duration-200 ease-soft',
+                prefs.fourColour === four ? 'neu-inset' : 'neu',
+              )}
+            >
+              {four ? 'Four' : 'Two'}
+            </button>
+          ))}
+        </div>
+      </Card>
+
+      <Card className="flex flex-col gap-4 @sm:flex-row @sm:items-center @sm:justify-between">
+        <div>
+          <CardTitle className="font-heading font-normal">Dyslexia-friendly text</CardTitle>
+          <CardDescription>
+            A clearer typeface with more space between letters and words.
+          </CardDescription>
+        </div>
+        <div className="flex gap-2" role="radiogroup" aria-label="Dyslexia-friendly text">
+          {([true, false] as const).map((v) => (
+            <button
+              key={String(v)}
+              type="button"
+              role="radio"
+              aria-checked={prefs.dyslexia === v}
+              onClick={() => learner.setPrefs({ ...prefs, dyslexia: v })}
+              className={cn(
+                'focus-ring h-12 min-w-[5.5rem] rounded-md px-4 text-base transition-shadow duration-200 ease-soft',
+                prefs.dyslexia === v ? 'neu-inset' : 'neu',
+              )}
+            >
+              {v ? 'On' : 'Off'}
+            </button>
+          ))}
+        </div>
+      </Card>
+
+      <Card className="flex flex-col gap-4 @sm:flex-row @sm:items-center @sm:justify-between">
+        <div>
+          <CardTitle className="font-heading font-normal">High contrast</CardTitle>
+          <CardDescription>
+            Stronger text, borders and suit colours for easier reading.
+          </CardDescription>
+        </div>
+        <div className="flex gap-2" role="radiogroup" aria-label="High contrast">
+          {(['high', 'normal'] as const).map((level) => (
+            <button
+              key={level}
+              type="button"
+              role="radio"
+              aria-checked={prefs.contrast === level}
+              onClick={() => learner.setPrefs({ ...prefs, contrast: level })}
+              className={cn(
+                'focus-ring h-12 min-w-[5.5rem] rounded-md px-4 text-base transition-shadow duration-200 ease-soft',
+                prefs.contrast === level ? 'neu-inset' : 'neu',
+              )}
+            >
+              {level === 'high' ? 'On' : 'Off'}
+            </button>
+          ))}
+        </div>
+      </Card>
+
+      <Card className="space-y-3">
+        <div>
+          <CardTitle className="font-heading font-normal">Sounds</CardTitle>
+          <CardDescription>
+            Gentle plays a soft chime for right and wrong. Joker plays a fart when she gets one
+            wrong and a cheer when she gets one right.
+          </CardDescription>
+        </div>
+        <div className="flex gap-2" role="radiogroup" aria-label="Sounds">
+          {(['off', 'gentle', 'joker'] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              role="radio"
+              aria-checked={prefs.soundMode === m}
+              onClick={() => learner.setPrefs({ ...prefs, soundMode: m })}
+              className={cn(
+                'focus-ring h-12 flex-1 rounded-md px-4 text-base capitalize transition-shadow duration-200 ease-soft',
+                prefs.soundMode === m ? 'neu-inset' : 'neu',
+              )}
+            >
+              {m}
+            </button>
+          ))}
+        </div>
+      </Card>
+
+      <Card className="flex flex-col gap-4 @sm:flex-row @sm:items-center @sm:justify-between">
+        <div>
           <CardTitle className="font-heading font-normal">Tips while playing</CardTitle>
           <CardDescription>
             A one-line nudge at each decision. Hints are always available on request.

@@ -77,93 +77,100 @@ function Table({
   }
 
   return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-4">
-      <Banner state={state} />
+    <div className="mx-auto flex max-w-2xl flex-col gap-3 landscape:max-w-5xl landscape:flex-row landscape:items-start landscape:gap-6">
+      {/* The table: opponents and the trick. Compact so it fits on a phone. */}
+      <div className="flex flex-col gap-3 landscape:flex-1">
+        <Banner state={state} />
 
-      {/* North */}
-      <Seatbox seat="N" state={state} onPlay={onPlay} hintCard={shown?.card} />
+        <Seatbox seat="N" state={state} onPlay={onPlay} hintCard={shown?.card} compact />
 
-      {/* Middle: West, trick, East */}
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
-        <Seatbox seat="W" state={state} compact />
-        <TrickArea state={state} />
-        <Seatbox seat="E" state={state} compact />
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+          <Seatbox seat="W" state={state} compact />
+          <TrickArea state={state} />
+          <Seatbox seat="E" state={state} compact />
+        </div>
+
+        {/* Your hand: below the table in portrait, lifted to the top in
+            landscape so it stays visible next to the bidding box. */}
+        <div className="landscape:order-first">
+          <Seatbox seat="S" state={state} onPlay={onPlay} hintCard={shown?.card} />
+        </div>
       </div>
 
-      {/* Auction or South */}
-      {state.phase === 'auction' && (
-        <AuctionPanel state={state} onCall={onCall} hintCall={shown?.call} />
-      )}
-      <Seatbox seat="S" state={state} onPlay={onPlay} hintCard={shown?.card} />
+      <div className="flex min-w-0 flex-col gap-3 landscape:flex-1">
+        {state.phase === 'auction' && (
+          <AuctionPanel state={state} onCall={onCall} hintCall={shown?.call} />
+        )}
 
-      {/* Coach */}
-      {(state.phase === 'auction' || state.phase === 'play') && (
-        <Card className="space-y-3">
-          <div className="flex items-center justify-between gap-3">
-            <CardTitle className="font-heading font-normal">Coach</CardTitle>
-            <label className="flex min-h-11 items-center gap-2 text-base">
-              <input
-                type="checkbox"
-                checked={tips}
-                onChange={(e) => setTips(e.target.checked)}
-                className="size-5 accent-primary"
-              />
-              Tips
-            </label>
-          </div>
-          {tip && <p className="text-base text-card-foreground">{tip}</p>}
-          {shown ? (
-            <p className="text-base text-card-foreground" role="status" aria-live="polite">
-              <strong>
-                {shown.call
-                  ? callLabel(shown.call)
-                  : shown.card
-                    ? 'Play the highlighted card.'
-                    : ''}
-              </strong>{' '}
-              {shown.text}
-            </p>
-          ) : (
-            <Button variant="wood" onClick={askHint} disabled={!humanTurn}>
-              <Lightbulb className="size-5" aria-hidden />
-              {humanTurn ? 'Give me a hint' : 'Waiting for the others…'}
-            </Button>
-          )}
-        </Card>
-      )}
+        {/* Coach */}
+        {(state.phase === 'auction' || state.phase === 'play') && (
+          <Card className="space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <CardTitle className="font-heading font-normal">Coach</CardTitle>
+              <label className="flex min-h-11 items-center gap-2 text-base">
+                <input
+                  type="checkbox"
+                  checked={tips}
+                  onChange={(e) => setTips(e.target.checked)}
+                  className="size-5 accent-primary"
+                />
+                Tips
+              </label>
+            </div>
+            {tip && <p className="text-base text-card-foreground">{tip}</p>}
+            {shown ? (
+              <p className="text-base text-card-foreground" role="status" aria-live="polite">
+                <strong>
+                  {shown.call
+                    ? callLabel(shown.call)
+                    : shown.card
+                      ? 'Play the highlighted card.'
+                      : ''}
+                </strong>{' '}
+                {shown.text}
+              </p>
+            ) : (
+              <Button variant="wood" onClick={askHint} disabled={!humanTurn}>
+                <Lightbulb className="size-5" aria-hidden />
+                {humanTurn ? 'Give me a hint' : 'Waiting for the others…'}
+              </Button>
+            )}
+          </Card>
+        )}
 
-      {state.phase === 'passed-out' && (
-        <Card className="space-y-3">
-          <CardTitle className="font-heading font-normal">Everyone passed</CardTitle>
-          <CardDescription>No contract this time. Deal again.</CardDescription>
-          <ButtonLink to={`/play?board=${board + 1}`} variant="wood" block>
-            Next board
-          </ButtonLink>
-        </Card>
-      )}
-
-      {result && (
-        <Card className="animate-pop-in space-y-3">
-          <CardTitle className="font-heading font-normal">
-            {contractLabel(result.contract)} by {SEAT_NAME[result.contract.declarer]}:{' '}
-            {result.made
-              ? `made${result.diff > 0 ? ` +${result.diff}` : ''}`
-              : `down ${-result.diff}`}
-          </CardTitle>
-          <CardDescription className="text-base">
-            {result.declarerSide === 'NS' ? 'Your side' : 'They'} took {result.tricks} tricks.{' '}
-            {result.humanPoints >= 0 ? `+${result.humanPoints}` : result.humanPoints} for you.
-          </CardDescription>
-          <div className="flex flex-col gap-2">
-            <ButtonLink to={`/play?board=${board + 1}`} variant="wood" size="lg" block>
+        {state.phase === 'passed-out' && (
+          <Card className="space-y-3">
+            <CardTitle className="font-heading font-normal">Everyone passed</CardTitle>
+            <CardDescription>No contract this time. Deal again.</CardDescription>
+            <ButtonLink to={`/play?board=${board + 1}`} variant="wood" block>
               Next board
             </ButtonLink>
-            <ButtonLink to="/" variant="ghost" block>
-              Back to Today
-            </ButtonLink>
-          </div>
-        </Card>
-      )}
+          </Card>
+        )}
+
+        {result && (
+          <Card className="animate-pop-in space-y-3">
+            <CardTitle className="font-heading font-normal">
+              {contractLabel(result.contract)} by {SEAT_NAME[result.contract.declarer]}:{' '}
+              {result.made
+                ? `made${result.diff > 0 ? ` +${result.diff}` : ''}`
+                : `down ${-result.diff}`}
+            </CardTitle>
+            <CardDescription className="text-base">
+              {result.declarerSide === 'NS' ? 'Your side' : 'They'} took {result.tricks} tricks.{' '}
+              {result.humanPoints >= 0 ? `+${result.humanPoints}` : result.humanPoints} for you.
+            </CardDescription>
+            <div className="flex flex-col gap-2">
+              <ButtonLink to={`/play?board=${board + 1}`} variant="wood" size="lg" block>
+                Next board
+              </ButtonLink>
+              <ButtonLink to="/" variant="ghost" block>
+                Back to Today
+              </ButtonLink>
+            </div>
+          </Card>
+        )}
+      </div>
     </div>
   )
 }
@@ -215,7 +222,7 @@ function Seatbox({
 
   const title = (
     <div className="flex items-center gap-2 text-foreground/90">
-      <span className={cn('font-heading text-lg', isTurn && 'underline underline-offset-4')}>
+      <span className={cn('font-heading text-base', isTurn && 'underline underline-offset-4')}>
         {seat === HUMAN ? 'You' : SEAT_NAME[seat]}
       </span>
       {isDummy && <span className="text-xs tracking-[0.12em] uppercase">dummy</span>}
@@ -383,10 +390,10 @@ function AuctionPanel({
                     disabled={!c}
                     onClick={() => c && onCall(c)}
                     className={cn(
-                      'focus-ring press h-12 rounded-md border font-heading text-lg',
+                      'focus-ring press h-11 rounded-md border font-heading text-lg',
                       c ? 'bg-card text-card-foreground' : 'opacity-30',
                       isHint && 'ring-4 ring-primary',
-                      (strain === 'H' || strain === 'D') && 'text-suit-red',
+                      strain !== 'NT' && `suit-ink-${strain}`,
                     )}
                   >
                     {level}

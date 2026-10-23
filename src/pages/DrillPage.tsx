@@ -5,8 +5,9 @@ import { Button, ButtonLink, Card, CardDescription, CardTitle } from '@/componen
 import { ErrorState, LoadingState } from '@/components/states'
 import { HandView } from '@/components/bridge/HandView'
 import { SKILLS, type SkillId, type System } from '@/features/bridge/skills'
-import { useLearner } from '@/features/bridge/store'
+import { useLearner, type SoundMode } from '@/features/bridge/store'
 import { useDrill } from '@/features/bridge/useDrill'
+import { playAnswer } from '@/features/play/sound'
 import { cn } from '@/lib/utils'
 
 /** /drill (today's mix) or /drill/:skill (practise one thing). */
@@ -27,6 +28,7 @@ export function DrillPage() {
       skill={skillId}
       system={learner.state.prefs.system}
       handSize={learner.state.prefs.handSize}
+      soundMode={learner.state.prefs.soundMode}
       progress={learner.state.progress}
       setProgress={learner.setProgress}
       sessions={learner.state.sessions}
@@ -39,6 +41,7 @@ function Drill(props: {
   skill?: SkillId
   system: System
   handSize: 'normal' | 'large'
+  soundMode: SoundMode
   progress: ReturnType<typeof useLearner>['state'] extends infer S
     ? S extends { progress: infer P }
       ? P
@@ -97,6 +100,7 @@ function Drill(props: {
               disabled={revealed}
               onClick={() => {
                 setShowMore(false)
+                playAnswer(option === q.answer, props.soundMode)
                 answer(option)
               }}
               className={cn(
