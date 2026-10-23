@@ -138,3 +138,9 @@ html {
 html[data-size='large'] {
   font-size: 125%;
 }
+
+/* Buttons inside cards take the card's ink, not the felt's cream. */
+.surface-card [data-variant='ghost'],
+.surface-card [data-variant='secondary'] {
+  color: var(--card-foreground);
+}

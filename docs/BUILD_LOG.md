@@ -2,6 +2,13 @@
 
 Newest first. One entry per push or decision. Future sessions start here, so write for someone with no memory of this chat.
 
+## 2026-10-22 — Playable hand against bots, with a coach
+
+- **Built:** `features/play/`: four-hand seeded deal; auction with legal-call rules, contract and declarer resolution, and a bot bidder that follows the drill rules (open/pass, opening bid, responses to 1NT and 1-of-a-suit, one rebid, simple overcalls); card play with follow-suit enforcement, trick winners with trumps, bot card choice by beginner rules of thumb (top of sequence, fourth-best, second hand low, third hand high, cheapest winner, draw trumps, ruff when it wins); non-vulnerable duplicate scoring. `useGame` drives bots on a short delay; the human plays South, and both North and South whenever their side declares. `PlayPage`: table with hidden hands as backs, dummy face-up after the lead, trick area, bidding box with only legal bids, Coach card with a Tips toggle (contextual one-liners) and a "Give me a hint" button that highlights the suggested bid or card with a reason; result card with score and Next board. Play tab, "Play a hand" on Today, Tips setting. Header removed (felt runs to the top; sun/moon in Settings). 7 new tests (34 total).
+- **Decided:** hint and opponents are the same mind, so the hint never recommends something the bots would not do. No doubles/redoubles, no vulnerability, no Stayman/transfers in the bot yet. Board numbers seed the deal, so a board can be replayed.
+- **Left out:** claim, undo, play review, smarter bots, duplicate scoring with vulnerability, saving results. All natural next steps, best done in a fresh session dedicated to the game.
+- **Status:** CI green; preview republished.
+
 ## 2026-10-22 — Renamed to Finesse; accessibility pass for older players
 
 - **Built:** app name Finesse (repo stays `trick`); 18px base size with a "Text size: Large" setting that scales the whole app (125%) via `html[data-size]`; text over the felt at 90% cream for contrast; every tappable thing ≥ 44px (header toggle 44, +/- 56, answer buttons 64, links given min-height); ✓/✗ icons inside the revealed answer buttons so colour is not the only signal, plus "correct" for screen readers; hand card ranks larger with a spoken "spades: 8 4 3 2" summary; verdict card is a polite live region; explanations one size up; cheat-sheet rows restacked (points + bid, then shape); settings rows stack on narrow screens via container queries.

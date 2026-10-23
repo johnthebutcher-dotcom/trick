@@ -21,9 +21,10 @@ export interface Prefs {
   system: System
   handSize: 'normal' | 'large'
   sound: boolean
+  tips: boolean
 }
 
-export const DEFAULT_PREFS: Prefs = { system: 'sayc', handSize: 'normal', sound: false }
+export const DEFAULT_PREFS: Prefs = { system: 'sayc', handSize: 'normal', sound: false, tips: true }
 
 const KEYS = {
   progress: 'trick:progress',

@@ -1,10 +1,8 @@
 import { NavLink, Outlet, useLocation } from 'react-router'
-import { BookOpen, Home, Settings } from 'lucide-react'
+import { BookOpen, Home, Settings, Spade } from 'lucide-react'
 import { OfflineBanner } from '@/components/OfflineBanner'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
-import { env } from '@/lib/env'
 import { cn } from '@/lib/utils'
-import { ThemeToggle } from '@/features/theme/ThemeToggle'
 
 /**
  * The frame every screen renders inside: backdrop art, offline banner, header,
@@ -17,6 +15,7 @@ import { ThemeToggle } from '@/features/theme/ThemeToggle'
  */
 const tabs = [
   { to: '/', label: 'Today', icon: Home },
+  { to: '/play', label: 'Play', icon: Spade },
   { to: '/sheet', label: 'Cheat-sheet', icon: BookOpen },
   { to: '/settings', label: 'Settings', icon: Settings },
 ]
@@ -29,12 +28,8 @@ export function AppShell() {
       <div aria-hidden className="app-backdrop" />
       <OfflineBanner />
 
-      <header className="surface-shell pt-safe sticky top-0 z-20 border-b">
-        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 md:px-6">
-          <span className="font-heading text-lg font-semibold">{env.VITE_APP_NAME}</span>
-          <ThemeToggle />
-        </div>
-      </header>
+      {/* No header: the felt runs to the top; the sun/moon lives in Settings. */}
+      <div className="pt-safe" aria-hidden />
 
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 md:px-6">
         <ErrorBoundary>

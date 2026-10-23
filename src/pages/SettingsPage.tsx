@@ -90,6 +90,32 @@ export function SettingsPage() {
 
       <Card className="flex flex-col gap-4 @sm:flex-row @sm:items-center @sm:justify-between">
         <div>
+          <CardTitle className="font-heading font-normal">Tips while playing</CardTitle>
+          <CardDescription>
+            A one-line nudge at each decision. Hints are always available on request.
+          </CardDescription>
+        </div>
+        <div className="flex gap-2" role="radiogroup" aria-label="Tips while playing">
+          {([true, false] as const).map((v) => (
+            <button
+              key={String(v)}
+              type="button"
+              role="radio"
+              aria-checked={prefs.tips === v}
+              onClick={() => learner.setPrefs({ ...prefs, tips: v })}
+              className={cn(
+                'focus-ring h-12 min-w-[5.5rem] rounded-md px-4 text-base transition-shadow duration-200 ease-soft',
+                prefs.tips === v ? 'neu-inset' : 'neu',
+              )}
+            >
+              {v ? 'On' : 'Off'}
+            </button>
+          ))}
+        </div>
+      </Card>
+
+      <Card className="flex flex-col gap-4 @sm:flex-row @sm:items-center @sm:justify-between">
+        <div>
           <CardTitle className="font-heading font-normal">Appearance</CardTitle>
           <CardDescription>Dark by default. Tap to switch.</CardDescription>
         </div>

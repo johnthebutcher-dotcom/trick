@@ -13,6 +13,7 @@ export function TodayPage() {
   const learner = useLearner()
   const onboarding = useOnboarding('local')
   const [stamp] = useState(() => Date.now())
+  const [nextBoard] = useState(() => 1 + Math.floor(Math.random() * 1000))
 
   if (!onboarding.done) return <Navigate to="/onboarding" replace />
   if (learner.status === 'loading' || !learner.state) return <LoadingState variant="screen" />
@@ -60,6 +61,9 @@ export function TodayPage() {
 
       <ButtonLink to={`/drill?n=${stamp}`} size="lg" block className="hover-lift">
         {answeredToday > 0 ? 'Another eight' : "Start today's drill"}
+      </ButtonLink>
+      <ButtonLink to={`/play?board=${nextBoard}`} variant="secondary" size="lg" block>
+        Play a hand
       </ButtonLink>
 
       <section className="reveal space-y-3">

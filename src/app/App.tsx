@@ -4,6 +4,7 @@ import { AppShell } from './AppShell'
 import { TodayPage } from '@/pages/TodayPage'
 import { DrillPage } from '@/pages/DrillPage'
 import { SheetPage } from '@/pages/SheetPage'
+import { PlayPage } from '@/pages/PlayPage'
 import { SignInPage } from '@/pages/SignInPage'
 import { AuthCallbackPage } from '@/pages/AuthCallbackPage'
 import { OnboardingPage } from '@/pages/OnboardingPage'
@@ -29,6 +30,7 @@ export function App() {
             <Route index element={env.VITE_PREVIEW === '1' ? <StyleguidePage /> : <TodayPage />} />
             <Route path="drill" element={<DrillPage />} />
             <Route path="drill/:skill" element={<DrillPage />} />
+            <Route path="play" element={<PlayPage />} />
             <Route path="sheet" element={<SheetPage />} />
             <Route path="onboarding" element={<OnboardingPage />} />
             <Route path="settings" element={<SettingsPage />} />

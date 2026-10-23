@@ -42,5 +42,11 @@ export interface ButtonLinkProps extends LinkProps, ButtonStyleProps {}
 
 /** A router link that looks like a button. Use for navigation, not actions. */
 export function ButtonLink({ variant, size, block, className, ...rest }: ButtonLinkProps) {
-  return <Link className={buttonClasses({ variant, size, block }, className)} {...rest} />
+  return (
+    <Link
+      data-variant={variant ?? 'primary'}
+      className={buttonClasses({ variant, size, block }, className)}
+      {...rest}
+    />
+  )
 }
