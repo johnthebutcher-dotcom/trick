@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router'
-import { Lightbulb } from 'lucide-react'
+import { Lightbulb, X } from 'lucide-react'
 import { Button, ButtonLink, Card, CardDescription, CardTitle } from '@/components/ui'
 import { ErrorState, LoadingState } from '@/components/states'
 import { CardBack, CardChip } from '@/components/bridge/CardChip'
@@ -41,22 +41,11 @@ export function PlayPage() {
       board={board}
       system={learner.state.prefs.system}
       tips={learner.state.prefs.tips}
-      setTips={(v) => learner.setPrefs({ ...learner.state!.prefs, tips: v })}
     />
   )
 }
 
-function Table({
-  board,
-  system,
-  tips,
-  setTips,
-}: {
-  board: number
-  system: System
-  tips: boolean
-  setTips: (v: boolean) => void
-}) {
+function Table({ board, system, tips }: { board: number; system: System; tips: boolean }) {
   const { state, call, play, hint, result } = useGame(board, system)
   const [shown, setShown] = useState<{ text: string; card?: PlayingCard; call?: Call } | null>(null)
   const humanTurn =
@@ -102,40 +91,57 @@ function Table({
           <AuctionPanel state={state} onCall={onCall} hintCall={shown?.call} />
         )}
 
-        {/* Coach */}
+        {/* A one-line tip (toggle lives in Settings) and a hint that pops open
+            into a bubble and shrinks back when closed. */}
         {(state.phase === 'auction' || state.phase === 'play') && (
-          <Card className="space-y-3">
-            <div className="flex items-center justify-between gap-3">
-              <CardTitle className="font-heading font-normal">Coach</CardTitle>
-              <label className="flex min-h-11 items-center gap-2 text-base">
-                <input
-                  type="checkbox"
-                  checked={tips}
-                  onChange={(e) => setTips(e.target.checked)}
-                  className="size-5 accent-primary"
-                />
-                Tips
-              </label>
-            </div>
-            {tip && <p className="text-base text-card-foreground">{tip}</p>}
-            {shown ? (
-              <p className="text-base text-card-foreground" role="status" aria-live="polite">
-                <strong>
-                  {shown.call
-                    ? callLabel(shown.call)
-                    : shown.card
-                      ? 'Play the highlighted card.'
-                      : ''}
-                </strong>{' '}
-                {shown.text}
+          <div className="flex flex-col items-end gap-2">
+            {tip && !shown && (
+              <p
+                className="w-full text-center text-sm text-foreground/90"
+                role="status"
+                aria-live="polite"
+              >
+                {tip}
               </p>
-            ) : (
-              <Button variant="wood" onClick={askHint} disabled={!humanTurn}>
-                <Lightbulb className="size-5" aria-hidden />
-                {humanTurn ? 'Give me a hint' : 'Waiting for the others…'}
-              </Button>
             )}
-          </Card>
+            <div className="relative self-end">
+              <div
+                className={cn(
+                  'absolute right-0 bottom-full mb-2 w-64 max-w-[80vw] origin-bottom-right rounded-lg border bg-card p-3 text-base text-card-foreground shadow-popover transition-[transform,opacity] duration-200 ease-spring',
+                  shown ? 'scale-100 opacity-100' : 'pointer-events-none scale-50 opacity-0',
+                )}
+                role="status"
+                aria-live="polite"
+              >
+                <button
+                  type="button"
+                  onClick={() => setShown(null)}
+                  aria-label="Close hint"
+                  className="focus-ring absolute top-1 right-1 flex size-8 items-center justify-center rounded-full text-card-foreground/70"
+                >
+                  <X className="size-4" aria-hidden />
+                </button>
+                <p className="pr-6">
+                  <strong>
+                    {shown?.call
+                      ? callLabel(shown.call)
+                      : shown?.card
+                        ? 'Play the highlighted card.'
+                        : ''}
+                  </strong>{' '}
+                  {shown?.text}
+                </p>
+              </div>
+              <Button
+                variant="wood"
+                onClick={() => (shown ? setShown(null) : askHint())}
+                disabled={!humanTurn && !shown}
+              >
+                <Lightbulb className="size-5" aria-hidden />
+                Hint
+              </Button>
+            </div>
+          </div>
         )}
 
         {state.phase === 'passed-out' && (
@@ -283,7 +289,7 @@ function HandRows({
   hintCard?: PlayingCard
 }) {
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-1">
       {HAND_SUITS.map((suit) =>
         hand[suit].map((rank) => {
           const card = { suit, rank }
@@ -390,7 +396,7 @@ function AuctionPanel({
                     disabled={!c}
                     onClick={() => c && onCall(c)}
                     className={cn(
-                      'focus-ring press h-11 rounded-md border font-heading text-lg',
+                      'focus-ring press h-11 rounded-md border font-heading text-lg font-bold',
                       c ? 'bg-card text-card-foreground' : 'opacity-30',
                       isHint && 'ring-4 ring-primary',
                       strain !== 'NT' && `suit-ink-${strain}`,

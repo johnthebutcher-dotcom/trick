@@ -45,7 +45,7 @@ export function HandView({
               <span
                 aria-hidden
                 className={cn(
-                  'font-heading tracking-[0.18em] tabular-nums',
+                  'font-heading font-bold tracking-[0.18em] tabular-nums',
                   size === 'large' ? 'text-4xl' : 'text-3xl',
                   ranks.length === 0 && 'text-muted-foreground',
                 )}

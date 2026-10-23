@@ -33,10 +33,13 @@
   --space-unit: 0.27rem;
   --heading-tracking: 0.01em;
 
+  /* Atkinson Hyperlegible everywhere for legibility (older players, small
+     screens). The Finesse wordmark keeps Tenor Sans via `.brand`. */
   --font-body:
-    'DM Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    'Atkinson Hyperlegible', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial,
     sans-serif;
-  --font-heading:
+  --font-heading: var(--font-body);
+  --font-brand:
     'Tenor Sans', ui-serif, 'Iowan Old Style', 'Palatino Linotype', Georgia, 'Times New Roman',
     serif;
 
@@ -158,12 +161,8 @@ html[data-size='large'] {
   --wood-overlay: linear-gradient(to bottom, oklch(20% 0.04 40 / 0.1), oklch(8% 0.03 40 / 0.5));
 }
 
-/* The shared wood material: the `wood` button variant (`.surface-wood`), the
-   floating cluster's pills (`.app-pill`), and the sun/moon toggle while it sits
-   in that cluster. Grouped so the recipe lives in one place. */
-.surface-wood,
-.app-topbar .app-pill,
-.app-topbar button[aria-label^='Switch to'] {
+/* The wood material for the `wood` button variant (Pass, hint, Start drill…). */
+.surface-wood {
   position: relative;
   border: 1px solid var(--wood-border);
   background-image: var(--wood-overlay), var(--wood-image);
@@ -176,26 +175,35 @@ html[data-size='large'] {
     inset 0 -3px 8px oklch(0% 0 0 / 0.38),
     0 2px 6px oklch(0% 0 0 / 0.3);
 }
-.surface-wood:hover,
-.app-topbar .app-pill:hover,
-.app-topbar button[aria-label^='Switch to']:hover {
+.surface-wood:hover {
   background-image:
     linear-gradient(to bottom, oklch(30% 0.05 45 / 0.08), oklch(10% 0.03 40 / 0.4)),
     var(--wood-image);
 }
-.surface-wood:active,
-.app-topbar .app-pill:active,
-.app-topbar button[aria-label^='Switch to']:active {
+.surface-wood:active {
   box-shadow:
     inset 0 2px 7px oklch(0% 0 0 / 0.5),
     inset 0 1px 0 oklch(0% 0 0 / 0.2);
 }
 
-/* The floating top-right cluster: logo, fullscreen, sun/moon. Transparent so
-   the felt shows through; the pills carry the wood. */
-.app-topbar .app-logo {
+/* ---------- Floating chrome (no bars) ---------- */
+/* Nav, fullscreen and sun/moon float over the felt as matching cream tools —
+   no bar. Active tab takes the clay accent. The Finesse wordmark keeps Tenor. */
+.app-chrome a,
+.app-chrome button {
   color: var(--foreground);
-  text-shadow: 0 1px 3px oklch(0% 0 0 / 0.5);
+  text-shadow: 0 1px 3px oklch(0% 0 0 / 0.55);
+}
+.app-chrome [aria-current='page'] {
+  color: var(--primary);
+}
+.app-chrome [aria-label^='Switch to'] {
+  background: transparent;
+  color: var(--foreground);
+}
+.brand {
+  font-family: var(--font-brand);
+  letter-spacing: 0.01em;
 }
 
 /* ---------- Suit colours (two- or four-colour) ---------- */
@@ -224,21 +232,6 @@ html[data-size='large'] {
 }
 :root[data-suits='four'] .suit-ink-C {
   color: var(--suit-green);
-}
-
-/* ---------- Dyslexia-friendly / high-legibility text ---------- */
-/* Swap to Atkinson Hyperlegible (built for low-vision reading) and open up the
-   spacing. Headings included — legibility wins over the Tenor Sans character
-   while this is on. */
-:root[data-font='readable'] {
-  --font-body: 'Atkinson Hyperlegible', 'DM Sans', ui-sans-serif, system-ui, sans-serif;
-  --font-heading: 'Atkinson Hyperlegible', ui-sans-serif, system-ui, sans-serif;
-  --heading-tracking: 0;
-}
-:root[data-font='readable'] body {
-  letter-spacing: 0.02em;
-  word-spacing: 0.06em;
-  line-height: 1.6;
 }
 
 /* ---------- High contrast ---------- */

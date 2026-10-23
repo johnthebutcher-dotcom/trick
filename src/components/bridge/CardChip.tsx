@@ -23,8 +23,8 @@ export function CardChip({
     <>
       <span
         className={cn(
-          'font-heading leading-none',
-          size === 'lg' ? 'text-2xl' : size === 'md' ? 'text-xl' : 'text-base',
+          'leading-none font-bold',
+          size === 'lg' ? 'text-2xl' : size === 'md' ? 'text-xl' : 'text-sm',
         )}
       >
         {rankText(card.rank)}
@@ -32,7 +32,7 @@ export function CardChip({
       <span
         className={cn(
           'leading-none',
-          size === 'lg' ? 'text-2xl' : size === 'md' ? 'text-xl' : 'text-base',
+          size === 'lg' ? 'text-xl' : size === 'md' ? 'text-lg' : 'text-xs',
         )}
       >
         {SUIT_SYMBOL[card.suit]}
@@ -40,8 +40,8 @@ export function CardChip({
     </>
   )
   const classes = cn(
-    'inline-flex flex-col items-center justify-center gap-0.5 rounded-md border bg-card text-card-foreground shadow-card',
-    size === 'lg' ? 'h-20 w-14' : size === 'md' ? 'h-16 w-12' : 'h-12 w-9',
+    'inline-flex flex-col items-center justify-center gap-0 rounded-md border bg-card text-card-foreground shadow-card',
+    size === 'lg' ? 'h-16 w-11' : size === 'md' ? 'h-14 w-10' : 'h-10 w-7',
     `suit-ink-${card.suit}`,
     highlight && 'ring-4 ring-primary',
     onClick && !disabled && 'press focus-ring cursor-pointer hover-lift',

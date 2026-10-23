@@ -2,6 +2,17 @@
 
 Newest first. One entry per push or decision. Future sessions start here, so write for someone with no memory of this chat.
 
+## 2026-10-23 — No bars: floating chrome, Atkinson font, smaller cards, hint bubble, iPad one-screen
+
+- **Chrome, no bars.** Removed both the top cluster and the bottom tab bar. New `components/AppChrome.tsx` floats everything over the felt tucked to the bottom edge: the Finesse mark (bottom-left, keeps Tenor via `.brand`), the four tabs (cream icons, **icons+labels on tablet / icons-only on phone** via `md:` on the label), then fullscreen + sun/moon bottom-right. All cream to match, active tab takes the clay accent (`.app-chrome [aria-current='page']`), the sun/moon pill goes transparent in the chrome. Styling is in card-room.css under `.app-chrome`; the old `.app-topbar`/`.app-pill` rules are gone (wood is now only `.surface-wood`). `AppShell` is just backdrop + offline + main + `<AppChrome/>`.
+- **Font swap.** Atkinson Hyperlegible is the default everywhere (`--font-heading` now aliases `--font-body`); key text is bold (card ranks, bids, nav labels). The Finesse wordmark is the one exception — `--font-brand` keeps Tenor Sans. Removed the now-redundant dyslexia toggle (pref, Settings card, `data-font` CSS) since Atkinson is the default; dropped DM Sans from the font link.
+- **Smaller cards.** `CardChip` shrank (md h-16 w-12 → h-14 w-10, etc.), `gap-0`, bold ranks, so each card hugs its rank + suit. Hand fan gap `gap-2 → gap-1`.
+- **Hint bubble.** The Coach card is gone. In its place a small wood "Hint" button that springs open into an overlay bubble (CSS `scale`/opacity, `ease-spring`) and shrinks back on close. The in-game Tips checkbox is gone — Tips on/off lives in Settings only; the contextual tip shows as a one-line caption when Tips is on.
+- **Fit:** with no bars + smaller cards + compact hint, the Play screen fits **one iPad screen, no scroll, portrait and landscape** at the default size (checked at 820×1180 and 1180×820). Phone still scrolls (owner's call) and the floating chrome overlaps scrolled content there — the known "figure out a system for phones later" item; left pure no-bar per the owner rather than re-adding a bar.
+- **Decided:** no scrim/bar behind the chrome (owner wants minimal, no bar); the overlap on a scrolling phone is accepted for now. Larger text (Settings) is allowed to scroll even on iPad.
+- **Checked:** `npm run check` green (54 tests, build). Screenshots: iPad portrait + landscape (one screen, four-colour), phone Today + Play.
+- **Status:** pushed to `main`.
+
 ## 2026-10-23 — Four-colour suits, accessibility, sounds (+ joker), table fits the screen
 
 - **Built:** four owner-requested additions, all driven by new `Prefs` fields (`fourColour`, `dyslexia`, `contrast`, `soundMode`) mirrored onto `<html>` by `applyAppearance` the same way `applyHandSize` already was. Old stored prefs (which had `sound: boolean`, unused) merge forward cleanly; `sound` was replaced by `soundMode`.

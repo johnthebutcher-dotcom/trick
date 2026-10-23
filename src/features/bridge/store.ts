@@ -27,8 +27,6 @@ export interface Prefs {
   tips: boolean
   /** Give clubs and diamonds their own colour so suits don't blur together. */
   fourColour: boolean
-  /** A high-legibility typeface with looser spacing. */
-  dyslexia: boolean
   contrast: 'normal' | 'high'
 }
 
@@ -38,7 +36,6 @@ export const DEFAULT_PREFS: Prefs = {
   soundMode: 'off',
   tips: true,
   fourColour: false,
-  dyslexia: false,
   contrast: 'normal',
 }
 
@@ -78,8 +75,6 @@ export function applyAppearance(prefs: Prefs) {
   applyHandSize(prefs.handSize)
   if (prefs.fourColour) root.dataset.suits = 'four'
   else delete root.dataset.suits
-  if (prefs.dyslexia) root.dataset.font = 'readable'
-  else delete root.dataset.font
   if (prefs.contrast === 'high') root.dataset.contrast = 'high'
   else delete root.dataset.contrast
 }

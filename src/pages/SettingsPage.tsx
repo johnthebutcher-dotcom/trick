@@ -116,32 +116,6 @@ export function SettingsPage() {
 
       <Card className="flex flex-col gap-4 @sm:flex-row @sm:items-center @sm:justify-between">
         <div>
-          <CardTitle className="font-heading font-normal">Dyslexia-friendly text</CardTitle>
-          <CardDescription>
-            A clearer typeface with more space between letters and words.
-          </CardDescription>
-        </div>
-        <div className="flex gap-2" role="radiogroup" aria-label="Dyslexia-friendly text">
-          {([true, false] as const).map((v) => (
-            <button
-              key={String(v)}
-              type="button"
-              role="radio"
-              aria-checked={prefs.dyslexia === v}
-              onClick={() => learner.setPrefs({ ...prefs, dyslexia: v })}
-              className={cn(
-                'focus-ring h-12 min-w-[5.5rem] rounded-md px-4 text-base transition-shadow duration-200 ease-soft',
-                prefs.dyslexia === v ? 'neu-inset' : 'neu',
-              )}
-            >
-              {v ? 'On' : 'Off'}
-            </button>
-          ))}
-        </div>
-      </Card>
-
-      <Card className="flex flex-col gap-4 @sm:flex-row @sm:items-center @sm:justify-between">
-        <div>
           <CardTitle className="font-heading font-normal">High contrast</CardTitle>
           <CardDescription>
             Stronger text, borders and suit colours for easier reading.
