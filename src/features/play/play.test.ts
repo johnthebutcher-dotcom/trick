@@ -54,6 +54,23 @@ describe('auction', () => {
     ]
     expect(advise(a, 'S', responder).call).toEqual({ type: 'bid', level: 3, strain: 'NT' })
   })
+
+  it('responds to a 1-major opening by the chosen system (default Standard American)', () => {
+    // Partner opened 1♠; responder has 11 points, no fit, five diamonds.
+    const responder = hand('32', 'Q3', 'AQ542', 'K432') // 11
+    const a: AuctionEntry[] = [
+      { seat: 'N', call: { type: 'bid', level: 1, strain: 'S' } },
+      { seat: 'E', call: { type: 'pass' } },
+    ]
+    // Standard systems bid the two-level suit on 10+; 2-over-1 needs game values, so 1NT.
+    expect(advise(a, 'S', responder).call).toEqual({ type: 'bid', level: 2, strain: 'D' })
+    expect(advise(a, 'S', responder, 'sayc').call).toEqual({ type: 'bid', level: 2, strain: 'D' })
+    expect(advise(a, 'S', responder, 'two-over-one').call).toEqual({
+      type: 'bid',
+      level: 1,
+      strain: 'NT',
+    })
+  })
 })
 
 describe('play', () => {

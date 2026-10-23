@@ -19,19 +19,32 @@ import {
 } from './cards'
 import { rulesFor } from './systems'
 import type { SystemId } from './systems/types'
+import {
+  isTeachableResponder,
+  respondToMajor,
+  responseOptions,
+  type OpenerMajor,
+} from './systems/responses'
 
 export type System = SystemId
 export { SYSTEMS } from './systems'
 
-export type SkillId = 'hcp' | 'shape-points' | 'open-pass' | 'opening-bid'
+export type SkillId = 'hcp' | 'shape-points' | 'open-pass' | 'opening-bid' | 'respond-1-suit'
 
 /**
  * Point-counting is the same in every system, so those skills keep one shared
  * progress ladder. Only the bidding skills differ by system, so switching
  * systems keeps your point-counting progress and gives each system its own
- * bidding ladder.
+ * bidding ladder. (A skill is listed here even if it is identical in some
+ * systems — e.g. 2-over-1 opens exactly like SAYC — because the id simply
+ * carries the active system; the content pack decides whether the answer
+ * actually differs.)
  */
-const SYSTEM_SPECIFIC: ReadonlySet<SkillId> = new Set<SkillId>(['open-pass', 'opening-bid'])
+const SYSTEM_SPECIFIC: ReadonlySet<SkillId> = new Set<SkillId>([
+  'open-pass',
+  'opening-bid',
+  'respond-1-suit',
+])
 
 export interface Skill {
   id: SkillId
@@ -66,7 +79,20 @@ export const SKILLS: Skill[] = [
     blurb: 'Five-card majors, 1NT with 15–17, longer minor otherwise.',
     unlockAfter: 16,
   },
+  {
+    id: 'respond-1-suit',
+    title: 'Responding to 1 of a suit',
+    blurb: 'Partner opened a major. Your first reply — this is where systems differ.',
+    unlockAfter: 16,
+  },
 ]
+
+const MAJOR_LABEL: Record<OpenerMajor, string> = { H: '1♥', S: '1♠' }
+
+/** The opening major for a responding question — fixed by the question number, so every system asks about the same hand. */
+function responderOpener(n: number): OpenerMajor {
+  return hashString(`respond-1-suit:opener:${n}`) % 2 === 0 ? 'H' : 'S'
+}
 
 export interface Question {
   id: string
@@ -107,6 +133,7 @@ export function parseQuestionId(id: string): { skill: SkillId; n: number; system
 /** Deal the n-th hand for a skill, skipping hands that make poor teaching examples. */
 function handFor(skill: SkillId, n: number, system: System): Hand {
   const { isTeachableOpenPass, isTeachableOpener } = rulesFor(system)
+  const opener = skill === 'respond-1-suit' ? responderOpener(n) : null
   // Walk seeds until a teachable hand; deterministic because the walk is.
   let attempt = 0
   for (;;) {
@@ -120,7 +147,9 @@ function handFor(skill: SkillId, n: number, system: System): Hand {
           ? distributionPoints(hand) > 0 && points >= 6 && points <= 20
           : skill === 'open-pass'
             ? isTeachableOpenPass(hand) && points >= 8 && points <= 16
-            : isTeachableOpener(hand)
+            : skill === 'opening-bid'
+              ? isTeachableOpener(hand)
+              : isTeachableResponder(hand, opener!)
     if (ok) return hand
     attempt++
   }
@@ -143,7 +172,7 @@ export function buildQuestion(id: string): Question | null {
   const { skill, n, system } = parsed
   const hand = handFor(skill, n, system)
   const seed = hashString(id)
-  const { openOrPass, openingBid, twoNoTrump } = rulesFor(system)
+  const { openOrPass, openingBid, twoNoTrump, respondingVariant } = rulesFor(system)
 
   if (skill === 'hcp') {
     const points = hcp(hand)
@@ -191,6 +220,21 @@ export function buildQuestion(id: string): Question | null {
       hand,
       prompt: 'You are the dealer. Open or pass?',
       options: ['Pass', 'Open'],
+      answer: d.bid,
+      why: d.why,
+      more: d.more,
+    }
+  }
+
+  if (skill === 'respond-1-suit') {
+    const opener = responderOpener(n)
+    const d = respondToMajor(hand, opener, respondingVariant)
+    return {
+      id,
+      skill,
+      hand,
+      prompt: `Partner opened ${MAJOR_LABEL[opener]}. What do you respond?`,
+      options: responseOptions(opener),
       answer: d.bid,
       why: d.why,
       more: d.more,

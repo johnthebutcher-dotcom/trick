@@ -7,9 +7,10 @@
  */
 import { rules as sayc } from './sayc'
 import { rules as acol } from './acol'
+import { rules as twoOverOne } from './two-over-one'
 import type { RuleModule, SystemId } from './types'
 
-export type { Decision, RuleModule, SystemId } from './types'
+export type { Decision, RuleModule, SystemId, ResponseVariant, OpenerMajor } from './types'
 
 export interface SystemInfo {
   id: SystemId
@@ -21,8 +22,8 @@ export interface SystemInfo {
 
 export const SYSTEMS: SystemInfo[] = [
   { id: 'sayc', name: 'Standard American', available: true, rules: sayc },
+  { id: 'two-over-one', name: '2-over-1', available: true, rules: twoOverOne },
   { id: 'acol', name: 'ACOL', available: true, rules: acol },
-  { id: 'two-over-one', name: '2-over-1', available: false },
 ]
 
 /** The rule module for a system, falling back to SAYC if a pack is missing. */

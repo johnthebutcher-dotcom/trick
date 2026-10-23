@@ -145,5 +145,6 @@ export const rules: RuleModule = {
   isTeachableOpenPass,
   oneNoTrump: { min: 15, max: 17 },
   twoNoTrump: { min: 20, max: 21 },
+  respondingVariant: 'standard',
   sheet: SAYC_SHEET,
 }

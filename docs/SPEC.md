@@ -33,7 +33,14 @@ _Owner's ticks, Oct 22, 2026. `npm run check:effects` enforces this list._
 
 ## Bidding system
 
-v1 content is **Standard American** (five-card majors, 15–17 1NT, strong 2♣, weak twos, Stayman, Jacoby transfers, Blackwood). The system is a setting from day one: every drill hand stores its correct answer per system (`answers: { sayc: '1♠', twoOverOne: '1♠', acol: '1♠' }`) and the cheat-sheet is per system. 2-over-1 and ACOL ship later as content packs; until then they are greyed out in Settings with "coming soon". If the owner learns her class uses a different system, the pack order changes, not the app.
+**Standard American, 2-over-1 and ACOL all ship.** The system is a setting that drives the drill answers, the table bot/hints and the cheat-sheet together.
+
+How it works (as built): a system is a rule module behind a registry (`src/features/bridge/systems/`: `types.ts` the `RuleModule`/`SystemId` contract, `index.ts` the `SYSTEMS` list + `rulesFor(id)`, and `sayc.ts` / `acol.ts` / `two-over-one.ts` each exporting a `rules` object). Answers are computed by each pack's functions, not stored on hands (the earlier `answers: {sayc,twoOverOne,acol}` sketch was dropped — functions keep the packs from drifting). The systems differ on two different axes:
+
+- **ACOL differs in the openings** — four-card majors, a weak 1NT (12–14), 2NT 20–22 — so its difference surfaces in the `open-pass` and `opening-bid` drills and in the bot's opening/1NT-response logic (which reads each system's NT ranges).
+- **2-over-1 differs in the responses** — it opens exactly like Standard American, but a new suit at the two level forces to game and the in-between hands bid a forcing 1NT. That lives in `systems/responses.ts` (`respondToMajor`, variant `'standard'` for SAYC/ACOL vs `'two-over-one'`), selected by each rule module's `respondingVariant`, and surfaces in the `respond-1-suit` drill and the bot's two-level-response threshold.
+
+Question ids: system-independent skills (count points, points with shape) are `skill:n`; system-specific skills (`open-pass`, `opening-bid`, `respond-1-suit`) are `system:skill:n`, so each system keeps its own spaced-repetition ladder. The skill-unlock ladder counts concepts, not systems. If the owner learns her class uses a different system, she just picks it in Settings.
 
 ## Features (v1, in build order)
 
@@ -43,7 +50,7 @@ v1 content is **Standard American** (five-card majors, 15–17 1NT, strong 2♣,
    1. Count your points (HCP; then distribution points once HCP is solid)
    2. Open or pass? (12+ HCP rules of thumb, rule of 20 later)
    3. Which suit to open (five-card majors, longer minor, 1NT 15–17 balanced)
-   4. Responding to 1 of a suit (6+ raise/new suit/1NT, 10+ game interest, 13+ game)
+   4. Responding to 1 of a suit (built; the first responding skill — scoped to major openings for now, and where SAYC/ACOL vs 2-over-1 diverge on the two-level new suit and the forcing 1NT)
    5. Responding to 1NT (pass/2NT/3NT by points; Stayman with a 4-card major; transfers with a 5-card major)
    6. Opener's rebid (minimum/medium/maximum; support or new suit)
    7. Competitive basics (takeout double, simple overcall)

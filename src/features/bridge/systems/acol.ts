@@ -171,5 +171,7 @@ export const rules: RuleModule = {
   isTeachableOpenPass,
   oneNoTrump: { min: 12, max: 14 },
   twoNoTrump: { min: 20, max: 22 },
+  // Acol responds to a major the standard way; its signature is the weak 1NT, not responding.
+  respondingVariant: 'standard',
   sheet: ACOL_SHEET,
 }

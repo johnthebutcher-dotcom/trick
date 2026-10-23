@@ -111,7 +111,8 @@ export function advise(
   hand: Hand,
   system: SystemId = 'sayc',
 ): Advice {
-  const { openOrPass, openingBid, oneNoTrump } = rulesFor(system)
+  const { openOrPass, openingBid, oneNoTrump, respondingVariant } = rulesFor(system)
+  const gameForcingTwoLevel = respondingVariant === 'two-over-one'
   const points = hcp(hand)
   const len = lengths(hand)
   const mine = entries.filter((e) => e.seat === seat)
@@ -186,19 +187,25 @@ export function advise(
             `${points} points and ${len[s as Suit]} ${STRAIN_LABEL[s]}: show the suit at the one level.`,
           )
       }
-      if (points >= 10) {
+      // A new suit at the two level: standard shows 10+, 2-over-1 forces to game (13+).
+      const twoLevelMin = gameForcingTwoLevel ? 13 : 10
+      if (points >= twoLevelMin) {
         const longest = (['S', 'H', 'D', 'C'] as Suit[]).sort((a, b) => len[b] - len[a])[0]!
         if (longest !== pb.strain && len[longest] >= 4)
           return legal(
             entries,
             { type: 'bid', level: 2, strain: longest },
-            `${points} points: a new suit at the two level shows 10 or more.`,
+            gameForcingTwoLevel
+              ? `${points} points: a new suit at the two level forces to game.`
+              : `${points} points: a new suit at the two level shows 10 or more.`,
           )
       }
       return legal(
         entries,
         { type: 'bid', level: 1, strain: 'NT' },
-        `${points} points, no fit and no suit to show at the one level: 1NT.`,
+        gameForcingTwoLevel
+          ? `${points} points, no fit: 1NT. It is forcing, so partner bids again.`
+          : `${points} points, no fit and no suit to show at the one level: 1NT.`,
       )
     }
     return pass

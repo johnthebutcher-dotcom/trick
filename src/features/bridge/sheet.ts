@@ -119,6 +119,48 @@ export const SAYC_SHEET: SheetSection[] = [
   },
 ]
 
+/**
+ * 2-over-1 shares every section with Standard American except responding to a
+ * suit: a two-level new suit forces to game, and the in-between hands go through
+ * a forcing 1NT. Everything else (openings, 1NT responses, rebids, competing)
+ * is the same, so those sections are reused from SAYC_SHEET.
+ */
+const TWO_OVER_ONE_RESPOND_SUIT: SheetSection = {
+  id: 'respond-suit',
+  title: 'Partner opened 1 of a suit',
+  intro: 'A new suit at the two level means game. 1NT is forcing — partner always bids again.',
+  rows: [
+    { points: '0–5', shape: 'any', bid: 'Pass', min: 0, max: 5 },
+    { points: '6–10', shape: '3+ card support', bid: 'Raise to 2', min: 6, max: 10 },
+    { points: '6+', shape: '4+ spades over 1♥', bid: '1♠ (one level)', min: 6, max: 40 },
+    {
+      points: '6–12',
+      shape: 'no fit, a long suit',
+      bid: '1NT forcing, then your suit',
+      min: 6,
+      max: 12,
+    },
+    {
+      points: '13+',
+      shape: 'no fit, a new suit',
+      bid: '2 of a new suit (forces to game)',
+      min: 13,
+      max: 40,
+    },
+    {
+      points: '13+',
+      shape: '4+ card support',
+      bid: 'Game: 4♥ / 4♠, or force to game first',
+      min: 13,
+      max: 40,
+    },
+  ],
+}
+
+export const TWO_OVER_ONE_SHEET: SheetSection[] = SAYC_SHEET.map((section) =>
+  section.id === 'respond-suit' ? TWO_OVER_ONE_RESPOND_SUIT : section,
+)
+
 /** Cheat-sheet content for Acol: four-card majors and a WEAK 1NT (12–14). */
 export const ACOL_SHEET: SheetSection[] = [
   {
