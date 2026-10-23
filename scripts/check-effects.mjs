@@ -71,12 +71,14 @@ const patternNames = [...utilityToItem.keys()].filter((n) => !n.endsWith(':') &&
 const prefixNames = [...utilityToItem.keys()].filter((n) => n.endsWith(':') || n.endsWith('*'))
 const violations = []
 for (const file of files) {
-  const text = readFileSync(file, 'utf8')
+  const raw = readFileSync(file, 'utf8')
   const fileAllow = new Set(
-    [...text.matchAll(/effects-allow:\s*([^\n(*]+)/g)].flatMap((m) =>
+    [...raw.matchAll(/effects-allow:\s*([^\n(*]+)/g)].flatMap((m) =>
       m[1].split(',').map((s) => s.trim()),
     ),
   )
+  // Only code counts: strip block and line comments so prose never trips the check.
+  const text = raw.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/.*$/gm, '$1')
   const used = new Set()
   for (const name of patternNames) {
     const re = new RegExp(

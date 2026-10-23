@@ -19,13 +19,13 @@ export default defineConfig({
       manifest: {
         // Per app: update name, short_name, description and theme_color
         // (theme_color should match the active preset's --primary).
-        name: 'App Starter',
-        short_name: 'Starter',
-        description: 'A starter PWA built from app-starter.',
+        name: 'Trick',
+        short_name: 'Trick',
+        description: 'Five-minute bridge drills, one idea at a time.',
         start_url: '/',
         display: 'standalone',
-        background_color: '#ffffff',
-        theme_color: '#2563eb',
+        background_color: '#1f1a17',
+        theme_color: '#b5543c',
         icons: [
           { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
           { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },

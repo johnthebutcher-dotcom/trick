@@ -13,7 +13,7 @@ export const envSchema = z.object({
     z.url().optional(),
   ),
   VITE_SUPABASE_ANON_KEY: optionalString,
-  VITE_APP_NAME: z.string().trim().min(1).default('App Starter'),
+  VITE_APP_NAME: z.string().trim().min(1).default('Trick'),
   /** `hash` for static previews without SPA rewrites (artifact previews, GitHub Pages). */
   VITE_ROUTER: z.enum(['browser', 'hash']).default('browser'),
   /** `1` makes the styleguide the home screen (preview builds). */
