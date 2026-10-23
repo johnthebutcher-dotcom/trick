@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useLocation } from 'react-router'
-import { Home, Settings } from 'lucide-react'
+import { BookOpen, Home, Settings } from 'lucide-react'
 import { OfflineBanner } from '@/components/OfflineBanner'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { env } from '@/lib/env'
@@ -16,7 +16,8 @@ import { ThemeToggle } from '@/features/theme/ThemeToggle'
  * effects-allow: viewTransition (shell default; remove the prop on NavLink to turn off)
  */
 const tabs = [
-  { to: '/', label: 'Home', icon: Home },
+  { to: '/', label: 'Today', icon: Home },
+  { to: '/sheet', label: 'Cheat-sheet', icon: BookOpen },
   { to: '/settings', label: 'Settings', icon: Settings },
 ]
 

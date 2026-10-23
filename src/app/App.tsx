@@ -1,8 +1,9 @@
 import { BrowserRouter, HashRouter, Route, Routes } from 'react-router'
 import { AuthProvider } from '@/features/auth'
 import { AppShell } from './AppShell'
-import { ProtectedRoute } from './ProtectedRoute'
-import { HomePage } from '@/pages/HomePage'
+import { TodayPage } from '@/pages/TodayPage'
+import { DrillPage } from '@/pages/DrillPage'
+import { SheetPage } from '@/pages/SheetPage'
 import { SignInPage } from '@/pages/SignInPage'
 import { AuthCallbackPage } from '@/pages/AuthCallbackPage'
 import { OnboardingPage } from '@/pages/OnboardingPage'
@@ -25,15 +26,15 @@ export function App() {
       <Router>
         <Routes>
           <Route element={<AppShell />}>
-            <Route index element={env.VITE_PREVIEW === '1' ? <StyleguidePage /> : <HomePage />} />
+            <Route index element={env.VITE_PREVIEW === '1' ? <StyleguidePage /> : <TodayPage />} />
+            <Route path="drill" element={<DrillPage />} />
+            <Route path="drill/:skill" element={<DrillPage />} />
+            <Route path="sheet" element={<SheetPage />} />
+            <Route path="onboarding" element={<OnboardingPage />} />
+            <Route path="settings" element={<SettingsPage />} />
             <Route path="styleguide" element={<StyleguidePage />} />
             <Route path="sign-in" element={<SignInPage />} />
             <Route path="auth/callback" element={<AuthCallbackPage />} />
-
-            <Route element={<ProtectedRoute />}>
-              <Route path="onboarding" element={<OnboardingPage />} />
-              <Route path="settings" element={<SettingsPage />} />
-            </Route>
 
             <Route path="*" element={<NotFoundPage />} />
           </Route>

@@ -2,6 +2,15 @@
 
 Newest first. One entry per push or decision. Future sessions start here, so write for someone with no memory of this chat.
 
+## 2026-10-22 — First playable: drill engine, Today, cheat-sheet, settings
+
+- **Built:** cards/evaluation with a seeded dealer (stable hand ids); Standard American rules for open-or-pass (13+, rule of 20) and opening bids (1NT 15–17, 2NT 20–21, five-card majors, longer minor, 1♦ with 4-4, 1♣ with 3-3); four skills (count points, points with shape, open or pass, which bid opens) with generated questions, one-line why and a longer "show me"; spaced repetition (steps 1/3/7/16/35 days, wrong resets); local-first store (idb-keyval); drill screen with the hand card (shadow-stack), neumorphic answer buttons, green/red reveal with shake and pop-in, View Transitions between hands, summary with misses; Today with progress ring, soft streak copy and the skill ladder (unlocks after 16 hands of the previous skill); cheat-sheet with a points stepper that highlights matching rows; settings (system with 2/1 and ACOL greyed, card size, appearance, account only when Supabase is configured); onboarding without sign-in. 27 tests. Suit colour tokens (`--suit-red/--suit-black`) added to every preset for this app.
+- **Decided:** no sign-in required; onboarding and settings are public routes. Teaching-example filters keep ambiguous hands (5-card-major 15–17 balanced, 18–19 balanced, preempts, strong 2♣) out of the drills until those lessons exist. Preview build shows the app, not the styleguide.
+- **Design pass:** hierarchy per screen is one action; answer grid uses 2 columns for 2 or 4 options so nothing orphans; serif headings only on titles and ranks; status colours only on the reveal. Checked at 390px in both modes with screenshots.
+- **Left out:** responding skills, conventions, play of the hand, sync, reminders, sound (toggle stored, unused).
+- **Needs the owner:** a Vercel project for the URL to install on the iPad; later a Supabase project if sync is wanted.
+- **Status:** CI green; playable from the preview artifact.
+
 ## 2026-10-22 — Spec and setup
 
 - **Built:** repo created from the template; renamed to Trick; preset warm-editorial applied; icons; spec written.

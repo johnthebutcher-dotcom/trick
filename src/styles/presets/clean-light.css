@@ -86,6 +86,10 @@
   --motion-snap: cubic-bezier(0.2, 0, 0, 1);
   --motion-emphasized: cubic-bezier(0.05, 0.7, 0.1, 1);
   --motion-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* Trick: playing-card suit colours */
+  --suit-red: light-dark(oklch(50% 0.2 25), oklch(72% 0.17 25));
+  --suit-black: var(--foreground);
 }
 
 :root[data-theme='light'] {
