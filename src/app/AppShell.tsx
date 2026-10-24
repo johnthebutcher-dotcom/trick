@@ -16,10 +16,10 @@ export function AppShell() {
       <div aria-hidden className="app-backdrop" />
       <OfflineBanner />
 
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2 md:px-6">
+      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2 md:px-6">
         <ErrorBoundary>
           {/* Keyed on the path so each screen fades up on navigation. */}
-          <div key={pathname} className="animate-fade-up">
+          <div key={pathname} className="animate-fade-up flex min-h-0 flex-1 flex-col">
             <Outlet />
           </div>
         </ErrorBoundary>

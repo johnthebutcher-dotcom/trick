@@ -41,7 +41,35 @@ describe('auction', () => {
       { seat: 'E', call: { type: 'pass' } },
     ]
     expect(isOver(a)).toBe(true)
-    expect(contractOf(a)).toEqual({ level: 3, strain: 'NT', declarer: 'N' })
+    expect(contractOf(a)).toEqual({ level: 3, strain: 'NT', declarer: 'N', risk: 'none' })
+  })
+  it('allows double of an opponent bid and redouble by that side only', () => {
+    // N bids 1S; E (opponent) may double; N/S may not double their own bid.
+    const afterBid: AuctionEntry[] = [{ seat: 'N', call: { type: 'bid', level: 1, strain: 'S' } }]
+    expect(isLegal(afterBid, { type: 'double' })).toBe(true) // E to act, opponent of N
+    expect(isLegal(afterBid, { type: 'redouble' })).toBe(false)
+    const afterDouble: AuctionEntry[] = [...afterBid, { seat: 'E', call: { type: 'double' } }]
+    // S to act (N's partner): may redouble, may not double again.
+    expect(isLegal(afterDouble, { type: 'redouble' })).toBe(true)
+    expect(isLegal(afterDouble, { type: 'double' })).toBe(false)
+    // A new bid clears the double state.
+    const afterRebid: AuctionEntry[] = [
+      ...afterDouble,
+      { seat: 'S', call: { type: 'bid', level: 2, strain: 'S' } },
+    ]
+    expect(isLegal(afterRebid, { type: 'redouble' })).toBe(false)
+    expect(isLegal(afterRebid, { type: 'double' })).toBe(true) // W (opponent) may double 2S
+  })
+  it('carries the double through to the contract', () => {
+    const a: AuctionEntry[] = [
+      { seat: 'N', call: { type: 'bid', level: 4, strain: 'S' } },
+      { seat: 'E', call: { type: 'double' } },
+      { seat: 'S', call: { type: 'pass' } },
+      { seat: 'W', call: { type: 'pass' } },
+      { seat: 'N', call: { type: 'pass' } },
+    ]
+    expect(isOver(a)).toBe(true)
+    expect(contractOf(a)).toEqual({ level: 4, strain: 'S', declarer: 'N', risk: 'doubled' })
   })
   it('bot opens a 1NT hand and partner raises to game with 10+', () => {
     const opener = hand('AK5', 'KQ4', 'Q32', 'J432') // 15 balanced
@@ -102,5 +130,21 @@ describe('play', () => {
     expect(score(4, 'S', 11)).toEqual({ points: 450, made: true, diff: 1 })
     expect(score(2, 'C', 8)).toEqual({ points: 90, made: true, diff: 0 })
     expect(score(3, 'H', 7)).toEqual({ points: -100, made: false, diff: -2 })
+  })
+  it('scores doubling and vulnerability', () => {
+    // 4S doubled, made exactly, not vulnerable: 120*2 trick + 300 game + 50 insult = 590.
+    expect(score(4, 'S', 10, 'doubled', false)).toEqual({ points: 590, made: true, diff: 0 })
+    // Same, vulnerable: 240 trick + 500 game + 50 = 790.
+    expect(score(4, 'S', 10, 'doubled', true).points).toBe(790)
+    // 3NT doubled +1 not vulnerable: 200 trick + 300 game + 100 overtrick + 50 = 650.
+    expect(score(3, 'NT', 10, 'doubled', false).points).toBe(650)
+    // Down 2, doubled, not vulnerable: 100 + 200 = 300.
+    expect(score(4, 'S', 8, 'doubled', false)).toEqual({ points: -300, made: false, diff: -2 })
+    // Down 2, doubled, vulnerable: 200 + 300 = 500.
+    expect(score(4, 'S', 8, 'doubled', true).points).toBe(-500)
+    // Down 1, redoubled, not vulnerable: 100 doubled -> 200.
+    expect(score(4, 'S', 9, 'redoubled', false).points).toBe(-200)
+    // Vulnerable undoubled game: 4S = 120 trick + 500 game = 620.
+    expect(score(4, 'S', 10, 'none', true).points).toBe(620)
   })
 })

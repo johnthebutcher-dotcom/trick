@@ -206,21 +206,49 @@ html[data-size='large'] {
   letter-spacing: 0.01em;
 }
 
-/* ---------- Suit colours (two- or four-colour) ---------- */
-/* Each suit inks itself through its own class, so the four-colour option is a
-   single token swap. Default: spades/clubs black, hearts/diamonds red. Four
-   colour (Settings → data-suits='four'): clubs green, diamonds blue, so no two
-   suits share a colour — easy to tell apart at a glance. */
+/* ---------- Playing cards ---------- */
+/* Faces: warm ivory in both modes (a real card is ivory, not a dark tile), a
+   fine border and a restrained shadow. Suit ink comes from `suit-ink-*`. */
+.card-face {
+  background: light-dark(oklch(98.5% 0.01 95), oklch(95% 0.012 95));
+  border-color: light-dark(oklch(80% 0.02 85), oklch(72% 0.02 85));
+  box-shadow:
+    0 1px 1px oklch(0% 0 0 / 0.2),
+    0 2px 4px oklch(0% 0 0 / 0.18);
+}
+/* Backs: a deep burgundy weave with clear edges, same footprint as a face. */
+.card-back {
+  border-color: oklch(100% 0 0 / 0.35);
+  background-color: oklch(32% 0.11 25);
+  background-image:
+    repeating-linear-gradient(45deg, oklch(100% 0 0 / 0.07) 0 3px, transparent 3px 6px),
+    repeating-linear-gradient(-45deg, oklch(100% 0 0 / 0.07) 0 3px, transparent 3px 6px),
+    radial-gradient(circle at 50% 50%, oklch(44% 0.13 25), oklch(26% 0.1 25));
+  box-shadow:
+    inset 0 0 0 1px oklch(100% 0 0 / 0.1),
+    0 1px 2px oklch(0% 0 0 / 0.3),
+    0 3px 6px oklch(0% 0 0 / 0.25);
+}
+
+/* ---------- Suit colours (classic or multicolour) ---------- */
+/* Each suit inks itself through its own class, so the colour choice is a single
+   token swap. Classic: spades/clubs dark, hearts/diamonds red. Multicolour
+   (Settings → data-suits='four'): clubs green, diamonds blue, so no two suits
+   share a colour. Two palettes: `--suit-*` for symbols on theme surfaces (the
+   drill hand's dark card), and `--ink-*` for symbols on an ivory card face. */
 :root {
   --suit-blue: light-dark(oklch(45% 0.16 250), oklch(70% 0.14 250));
   --suit-green: light-dark(oklch(45% 0.13 150), oklch(68% 0.14 152));
+  /* Fixed inks for ivory card faces — always dark/saturated, never theme-flipped. */
+  --ink-black: oklch(26% 0.02 60);
+  --ink-red: oklch(48% 0.2 25);
+  --ink-blue: oklch(42% 0.17 250);
+  --ink-green: oklch(40% 0.14 150);
 }
 .suit-ink-S {
   color: var(--suit-black);
 }
-.suit-ink-H {
-  color: var(--suit-red);
-}
+.suit-ink-H,
 .suit-ink-D {
   color: var(--suit-red);
 }
@@ -232,6 +260,25 @@ html[data-size='large'] {
 }
 :root[data-suits='four'] .suit-ink-C {
   color: var(--suit-green);
+}
+
+/* On an ivory card face the ink is always dark, whatever the app theme. */
+.card-face {
+  color: var(--ink-black);
+}
+.card-face.suit-ink-S,
+.card-face.suit-ink-C {
+  color: var(--ink-black);
+}
+.card-face.suit-ink-H,
+.card-face.suit-ink-D {
+  color: var(--ink-red);
+}
+:root[data-suits='four'] .card-face.suit-ink-D {
+  color: var(--ink-blue);
+}
+:root[data-suits='four'] .card-face.suit-ink-C {
+  color: var(--ink-green);
 }
 
 /* ---------- High contrast ---------- */

@@ -7,9 +7,12 @@ import {
   dealerFor,
   isLegal,
   isOver,
+  isVulnerable,
+  vulnerabilityFor,
   type AuctionEntry,
   type Call,
   type Contract,
+  type Vul,
 } from './auction'
 import {
   cardsOf,
@@ -28,6 +31,7 @@ export type Phase = 'auction' | 'play' | 'done' | 'passed-out'
 export interface GameState {
   seed: number
   dealer: Seat
+  vul: Vul
   hands: Deal
   auction: AuctionEntry[]
   turn: Seat
@@ -47,6 +51,7 @@ function initial(seed: number): GameState {
   return {
     seed,
     dealer,
+    vul: vulnerabilityFor(seed),
     hands: dealFour(hashString(`finesse:deal:${seed}`)),
     auction: [],
     turn: dealer,
@@ -198,7 +203,7 @@ function finish(state: GameState): Result {
   const c = state.contract!
   const declarerSide = c.declarer === 'N' || c.declarer === 'S' ? 'NS' : 'EW'
   const tricks = state.won[declarerSide]
-  const s = score(c.level, c.strain, tricks)
+  const s = score(c.level, c.strain, tricks, c.risk, isVulnerable(state.vul, declarerSide))
   const humanSide: 'NS' | 'EW' = 'NS'
   return {
     contract: c,
@@ -219,8 +224,9 @@ export function humanHands(state: GameState): Seat[] {
   return seats
 }
 
-export function visibleHand(state: GameState, seat: Seat): Hand | null {
+export function visibleHand(state: GameState, seat: Seat, showAll = false): Hand | null {
   if (seat === HUMAN) return state.hands[seat]
+  if (showAll) return state.hands[seat]
   if (state.phase === 'done') return state.hands[seat]
   if (state.phase !== 'play' || !state.contract) return null
   // Our side declares: the human plays both hands, so both are face up from the lead.

@@ -24,7 +24,14 @@ export const STRAIN_LABEL: Record<Strain, string> = {
   NT: 'NT',
 }
 
-export type Call = { type: 'pass' } | { type: 'bid'; level: number; strain: Strain }
+export type Call =
+  | { type: 'pass' }
+  | { type: 'double' }
+  | { type: 'redouble' }
+  | { type: 'bid'; level: number; strain: Strain }
+
+/** Whether the standing contract is undoubled, doubled or redoubled. */
+export type Risk = 'none' | 'doubled' | 'redoubled'
 
 export interface AuctionEntry {
   seat: Seat
@@ -35,10 +42,36 @@ export interface Contract {
   level: number
   strain: Strain
   declarer: Seat
+  risk: Risk
 }
 
 export function callLabel(call: Call): string {
-  return call.type === 'pass' ? 'Pass' : `${call.level}${STRAIN_LABEL[call.strain]}`
+  if (call.type === 'pass') return 'Pass'
+  if (call.type === 'double') return 'X'
+  if (call.type === 'redouble') return 'XX'
+  return `${call.level}${STRAIN_LABEL[call.strain]}`
+}
+
+const RISK_SUFFIX: Record<Risk, string> = { none: '', doubled: 'X', redoubled: 'XX' }
+
+/** The standing bid and whether it has been doubled/redoubled. */
+export function doublingInfo(entries: AuctionEntry[]): { bid: AuctionEntry | null; risk: Risk } {
+  let bid: AuctionEntry | null = null
+  let risk: Risk = 'none'
+  for (const e of entries) {
+    if (e.call.type === 'bid') {
+      bid = e
+      risk = 'none'
+    } else if (e.call.type === 'double') risk = 'doubled'
+    else if (e.call.type === 'redouble') risk = 'redoubled'
+  }
+  return { bid, risk }
+}
+
+/** The seat due to call next, given the auction so far and the dealer. */
+export function seatToCall(entries: AuctionEntry[], dealer: Seat): Seat {
+  const last = entries[entries.length - 1]
+  return last ? next(last.seat) : dealer
 }
 
 export function bidRank(level: number, strain: Strain): number {
@@ -55,6 +88,13 @@ export function lastBid(entries: AuctionEntry[]): AuctionEntry | null {
 
 export function isLegal(entries: AuctionEntry[], call: Call): boolean {
   if (call.type === 'pass') return true
+  if (call.type === 'double' || call.type === 'redouble') {
+    const { bid, risk } = doublingInfo(entries)
+    if (!bid) return false
+    const toAct = next(entries[entries.length - 1]!.seat)
+    if (call.type === 'double') return risk === 'none' && !sameSide(bid.seat, toAct)
+    return risk === 'doubled' && sameSide(bid.seat, toAct)
+  }
   const last = lastBid(entries)
   if (!last || last.call.type !== 'bid') return call.level >= 1 && call.level <= 7
   return bidRank(call.level, call.strain) > bidRank(last.call.level, last.call.strain)
@@ -74,16 +114,17 @@ export function contractOf(entries: AuctionEntry[]): Contract | null {
   const last = lastBid(entries)
   if (!last || last.call.type !== 'bid') return null
   const { level, strain } = last.call
+  const { risk } = doublingInfo(entries)
   for (const e of entries) {
     if (e.call.type === 'bid' && e.call.strain === strain && sameSide(e.seat, last.seat)) {
-      return { level, strain, declarer: e.seat }
+      return { level, strain, declarer: e.seat, risk }
     }
   }
-  return { level, strain, declarer: last.seat }
+  return { level, strain, declarer: last.seat, risk }
 }
 
 export function contractLabel(c: Contract): string {
-  return `${c.level}${STRAIN_LABEL[c.strain]}`
+  return `${c.level}${STRAIN_LABEL[c.strain]}${RISK_SUFFIX[c.risk]}`
 }
 
 /** Minimum level at which `strain` can be bid now. */
@@ -314,6 +355,8 @@ function legal(entries: AuctionEntry[], call: Call, why: string): Advice {
 /** All legal calls for a bidding box, lowest first. */
 export function legalCalls(entries: AuctionEntry[]): Call[] {
   const out: Call[] = [{ type: 'pass' }]
+  if (isLegal(entries, { type: 'double' })) out.push({ type: 'double' })
+  if (isLegal(entries, { type: 'redouble' })) out.push({ type: 'redouble' })
   for (let level = 1; level <= 7; level++)
     for (const strain of STRAINS) {
       const c: Call = { type: 'bid', level, strain }
@@ -324,6 +367,36 @@ export function legalCalls(entries: AuctionEntry[]): Call[] {
 
 export function dealerFor(boardSeed: number): Seat {
   return (['N', 'E', 'S', 'W'] as Seat[])[boardSeed % 4]!
+}
+
+export type Vul = 'none' | 'NS' | 'EW' | 'both'
+
+/** Standard duplicate vulnerability cycle (16-board), by board number. */
+const VUL_CYCLE: Vul[] = [
+  'none',
+  'NS',
+  'EW',
+  'both',
+  'NS',
+  'EW',
+  'both',
+  'none',
+  'EW',
+  'both',
+  'none',
+  'NS',
+  'both',
+  'none',
+  'NS',
+  'EW',
+]
+export function vulnerabilityFor(board: number): Vul {
+  return VUL_CYCLE[(((board - 1) % 16) + 16) % 16]!
+}
+
+/** Is the given side vulnerable under this board's vulnerability? */
+export function isVulnerable(vul: Vul, side: 'NS' | 'EW'): boolean {
+  return vul === 'both' || vul === side
 }
 
 export { next as nextSeat, SUIT_SYMBOL }

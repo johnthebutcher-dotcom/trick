@@ -3,49 +3,64 @@ import { cn } from '@/lib/utils'
 
 const rankText = (r: Card['rank']) => (r === 'T' ? '10' : r)
 
-/** A playing card face. As a button when `onClick` is given. */
+export type CardSize = 'xs' | 'sm' | 'md' | 'lg'
+
+/** One card footprint, shared by faces and backs so every card is the same size. */
+const SIZE: Record<CardSize, string> = {
+  xs: 'h-9 w-7',
+  sm: 'h-11 w-8',
+  md: 'h-14 w-10',
+  lg: 'h-16 w-12',
+}
+const RANK_TEXT: Record<CardSize, string> = {
+  xs: 'text-xs',
+  sm: 'text-sm',
+  md: 'text-lg',
+  lg: 'text-xl',
+}
+const SUIT_TEXT: Record<CardSize, string> = {
+  xs: 'text-[0.6rem]',
+  sm: 'text-xs',
+  md: 'text-base',
+  lg: 'text-lg',
+}
+
+/**
+ * A playing-card face: warm ivory, crisp rank and suit, a fine border and a
+ * restrained shadow. A button when `onClick` is given. Suit colour comes from
+ * the `suit-ink-*` class, so the four-colour option flows through.
+ */
 export function CardChip({
   card,
   onClick,
   disabled,
   size = 'md',
   highlight,
+  selectable,
   className,
 }: {
   card: Card
   onClick?: () => void
   disabled?: boolean
-  size?: 'sm' | 'md' | 'lg'
+  size?: CardSize
   highlight?: boolean
+  /** During bidding the hand is reference only — no press/hover affordance. */
+  selectable?: boolean
   className?: string
 }) {
   const body = (
     <>
-      <span
-        className={cn(
-          'leading-none font-bold',
-          size === 'lg' ? 'text-2xl' : size === 'md' ? 'text-xl' : 'text-sm',
-        )}
-      >
-        {rankText(card.rank)}
-      </span>
-      <span
-        className={cn(
-          'leading-none',
-          size === 'lg' ? 'text-xl' : size === 'md' ? 'text-lg' : 'text-xs',
-        )}
-      >
-        {SUIT_SYMBOL[card.suit]}
-      </span>
+      <span className={cn('leading-none font-bold', RANK_TEXT[size])}>{rankText(card.rank)}</span>
+      <span className={cn('leading-none', SUIT_TEXT[size])}>{SUIT_SYMBOL[card.suit]}</span>
     </>
   )
   const classes = cn(
-    'inline-flex flex-col items-center justify-center gap-0 rounded-md border bg-card text-card-foreground shadow-card',
-    size === 'lg' ? 'h-16 w-11' : size === 'md' ? 'h-14 w-10' : 'h-10 w-7',
+    'card-face inline-flex flex-col items-center justify-center gap-0 rounded-md border',
+    SIZE[size],
     `suit-ink-${card.suit}`,
-    highlight && 'ring-4 ring-primary',
-    onClick && !disabled && 'press focus-ring cursor-pointer hover-lift',
-    disabled && onClick && 'opacity-40',
+    highlight && 'z-10 ring-3 ring-primary',
+    onClick && selectable && !disabled && 'press focus-ring cursor-pointer hover-lift',
+    disabled && onClick && 'opacity-45',
     className,
   )
   const label = `${rankText(card.rank)} of ${SUIT_NAME[card.suit]}`
@@ -69,16 +84,7 @@ export function CardChip({
   )
 }
 
-/** The back of a card, for hidden hands. */
-export function CardBack({ className, size = 'sm' }: { className?: string; size?: 'sm' | 'md' }) {
-  return (
-    <span
-      aria-hidden
-      className={cn(
-        'inline-block rounded-md border border-foreground/30 bg-primary/70',
-        size === 'md' ? 'h-16 w-12' : 'h-10 w-7',
-        className,
-      )}
-    />
-  )
+/** The back of a concealed card: patterned, with clear edges and a soft shadow. */
+export function CardBack({ className, size = 'md' }: { className?: string; size?: CardSize }) {
+  return <span aria-hidden className={cn('card-back rounded-md border', SIZE[size], className)} />
 }

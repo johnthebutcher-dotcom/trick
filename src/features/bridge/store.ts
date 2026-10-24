@@ -28,6 +28,8 @@ export interface Prefs {
   /** Give clubs and diamonds their own colour so suits don't blur together. */
   fourColour: boolean
   contrast: 'normal' | 'high'
+  /** Teaching mode: show every player's cards face up. */
+  showAll: boolean
 }
 
 export const DEFAULT_PREFS: Prefs = {
@@ -37,6 +39,7 @@ export const DEFAULT_PREFS: Prefs = {
   tips: true,
   fourColour: false,
   contrast: 'normal',
+  showAll: false,
 }
 
 const KEYS = {

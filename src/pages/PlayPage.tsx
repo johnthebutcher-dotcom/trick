@@ -1,61 +1,70 @@
 import { useState, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router'
-import { Lightbulb, X } from 'lucide-react'
 import { Button, ButtonLink, Card, CardDescription, CardTitle } from '@/components/ui'
 import { ErrorState, LoadingState } from '@/components/states'
-import { CardBack, CardChip } from '@/components/bridge/CardChip'
+import { CardChip } from '@/components/bridge/CardChip'
+import { Fan } from '@/components/bridge/Fan'
 import { HAND_SUITS, type Card as PlayingCard, type Hand } from '@/features/bridge/cards'
 import type { System } from '@/features/bridge/skills'
 import { useLearner } from '@/features/bridge/store'
 import {
   callLabel,
   contractLabel,
-  legalCalls,
+  isLegal,
+  STRAINS,
   STRAIN_LABEL,
   type Call,
+  type Strain,
+  type Vul,
 } from '@/features/play/auction'
 import { SEAT_NAME, cardsOf, type Seat } from '@/features/play/deal'
 import { legalCards } from '@/features/play/play'
 import { tipFor } from '@/features/play/tips'
-import {
-  controller,
-  dummySeat,
-  useGame,
-  visibleHand,
-  type GameState,
-} from '@/features/play/useGame'
+import { controller, useGame, visibleHand, type GameState } from '@/features/play/useGame'
 import { cn } from '@/lib/utils'
 
 const HUMAN: Seat = 'S'
+const SEAT_COLS: Seat[] = ['N', 'E', 'S', 'W'] // clockwise, for the auction grid
+const VUL_LABEL: Record<Vul, string> = { none: 'None', NS: 'N-S', EW: 'E-W', both: 'Both' }
 
-/** /play?board=N — one deal against three bots, with a coach. */
+/** /play?board=N — one deal against three bots, laid out as a bridge table. */
 export function PlayPage() {
   const [params] = useSearchParams()
   const board = Number(params.get('board') ?? 1) || 1
   const learner = useLearner()
   if (learner.status === 'loading' || !learner.state) return <LoadingState variant="screen" />
   if (learner.status === 'error') return <ErrorState onRetry={learner.reload} />
+  const { prefs } = learner.state
   return (
     <Table
       key={board}
       board={board}
-      system={learner.state.prefs.system}
-      tips={learner.state.prefs.tips}
+      system={prefs.system}
+      tips={prefs.tips}
+      showAll={prefs.showAll}
     />
   )
 }
 
-function Table({ board, system, tips }: { board: number; system: System; tips: boolean }) {
+function Table({
+  board,
+  system,
+  tips,
+  showAll,
+}: {
+  board: number
+  system: System
+  tips: boolean
+  showAll: boolean
+}) {
   const { state, call, play, hint, result } = useGame(board, system)
   const [shown, setShown] = useState<{ text: string; card?: PlayingCard; call?: Call } | null>(null)
   const humanTurn =
     controller(state, state.turn) === 'human' &&
     (state.phase === 'auction' || state.phase === 'play')
   const tip = tips && humanTurn ? tipFor(state, HUMAN) : null
+  const over = state.phase === 'passed-out' || state.phase === 'done'
 
-  function askHint() {
-    setShown(hint())
-  }
   function onCall(c: Call) {
     setShown(null)
     call(c)
@@ -66,351 +75,494 @@ function Table({ board, system, tips }: { board: number; system: System; tips: b
   }
 
   return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-3 landscape:max-w-5xl landscape:flex-row landscape:items-start landscape:gap-6">
-      {/* The table: opponents and the trick. Compact so it fits on a phone. */}
-      <div className="flex flex-col gap-3 landscape:flex-1">
-        <Banner state={state} />
+    <div className="mx-auto flex min-h-0 w-full max-w-4xl flex-1 flex-col gap-2">
+      <StatusHeader state={state} />
 
-        <Seatbox seat="N" state={state} onPlay={onPlay} hintCard={shown?.card} compact />
-
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
-          <Seatbox seat="W" state={state} compact />
-          <TrickArea state={state} />
-          <Seatbox seat="E" state={state} compact />
-        </div>
-
-        {/* Your hand: below the table in portrait, lifted to the top in
-            landscape so it stays visible next to the bidding box. */}
-        <div className="landscape:order-first">
-          <Seatbox seat="S" state={state} onPlay={onPlay} hintCard={shown?.card} />
-        </div>
-      </div>
-
-      <div className="flex min-w-0 flex-col gap-3 landscape:flex-1">
-        {state.phase === 'auction' && (
-          <AuctionPanel state={state} onCall={onCall} hintCall={shown?.call} />
-        )}
-
-        {/* A one-line tip (toggle lives in Settings) and a hint that pops open
-            into a bubble and shrinks back when closed. */}
-        {(state.phase === 'auction' || state.phase === 'play') && (
-          <div className="flex flex-col items-end gap-2">
-            {tip && !shown && (
-              <p
-                className="w-full text-center text-sm text-foreground/90"
-                role="status"
-                aria-live="polite"
-              >
-                {tip}
-              </p>
-            )}
-            <div className="relative self-end">
-              <div
-                className={cn(
-                  'absolute right-0 bottom-full mb-2 w-64 max-w-[80vw] origin-bottom-right rounded-lg border bg-card p-3 text-base text-card-foreground shadow-popover transition-[transform,opacity] duration-200 ease-spring',
-                  shown ? 'scale-100 opacity-100' : 'pointer-events-none scale-50 opacity-0',
-                )}
-                role="status"
-                aria-live="polite"
-              >
-                <button
-                  type="button"
-                  onClick={() => setShown(null)}
-                  aria-label="Close hint"
-                  className="focus-ring absolute top-1 right-1 flex size-8 items-center justify-center rounded-full text-card-foreground/70"
-                >
-                  <X className="size-4" aria-hidden />
-                </button>
-                <p className="pr-6">
-                  <strong>
-                    {shown?.call
-                      ? callLabel(shown.call)
-                      : shown?.card
-                        ? 'Play the highlighted card.'
-                        : ''}
-                  </strong>{' '}
-                  {shown?.text}
-                </p>
-              </div>
-              <Button
-                variant="wood"
-                onClick={() => (shown ? setShown(null) : askHint())}
-                disabled={!humanTurn && !shown}
-              >
-                <Lightbulb className="size-5" aria-hidden />
-                Hint
-              </Button>
-            </div>
+      {/* Below the header: in portrait a single centred column (table, then
+          controls); in landscape two columns (table left, controls right) so a
+          short screen never pushes the bidding box off the bottom. */}
+      <div className="flex min-h-0 flex-1 flex-col justify-center gap-4 landscape:flex-row landscape:items-center landscape:gap-6">
+        {/* The table: North across the top, West/East on the sides, the auction
+          or the played trick in the centre, your hand along the bottom. */}
+        <div className="grid grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-2 landscape:flex-1">
+          <div className="col-start-2 row-start-1 justify-self-center">
+            <SeatArea
+              seat="N"
+              state={state}
+              showAll={showAll}
+              onPlay={onPlay}
+              hintCard={shown?.card}
+            />
           </div>
-        )}
+          <div className="col-start-1 row-start-2">
+            <SeatArea seat="W" state={state} showAll={showAll} />
+          </div>
+          <div className="col-start-3 row-start-2">
+            <SeatArea seat="E" state={state} showAll={showAll} />
+          </div>
+          <div className="col-start-2 row-start-2">
+            <Centre state={state} />
+          </div>
+          <div className="col-span-3 row-start-3 justify-self-center">
+            <SeatArea
+              seat="S"
+              state={state}
+              showAll={showAll}
+              onPlay={onPlay}
+              hintCard={shown?.card}
+            />
+          </div>
+        </div>
 
-        {state.phase === 'passed-out' && (
-          <Card className="space-y-3">
-            <CardTitle className="font-heading font-normal">Everyone passed</CardTitle>
-            <CardDescription>No contract this time. Deal again.</CardDescription>
-            <ButtonLink to={`/play?board=${board + 1}`} variant="wood" block>
-              Next board
-            </ButtonLink>
-          </Card>
-        )}
+        {/* Controls: below the hand in portrait, a side panel in landscape. */}
+        <div className="flex flex-col items-center gap-2 landscape:w-96 landscape:shrink-0 landscape:self-center">
+          {!over && (
+            <div className="flex w-full flex-col items-center gap-2">
+              {state.phase === 'auction' && <BiddingControls state={state} onCall={onCall} />}
+              {state.phase === 'play' && (
+                <p className="min-h-6 text-center text-sm text-foreground/90">
+                  {humanTurn ? 'Tap a card to play it.' : `${SEAT_NAME[state.turn]} is playing…`}
+                </p>
+              )}
+              <HintControl
+                shown={shown}
+                tip={tip}
+                canHint={humanTurn}
+                onAsk={() => setShown(hint())}
+                onClose={() => setShown(null)}
+              />
+            </div>
+          )}
 
-        {result && (
-          <Card className="animate-pop-in space-y-3">
-            <CardTitle className="font-heading font-normal">
-              {contractLabel(result.contract)} by {SEAT_NAME[result.contract.declarer]}:{' '}
-              {result.made
-                ? `made${result.diff > 0 ? ` +${result.diff}` : ''}`
-                : `down ${-result.diff}`}
-            </CardTitle>
-            <CardDescription className="text-base">
-              {result.declarerSide === 'NS' ? 'Your side' : 'They'} took {result.tricks} tricks.{' '}
-              {result.humanPoints >= 0 ? `+${result.humanPoints}` : result.humanPoints} for you.
-            </CardDescription>
-            <div className="flex flex-col gap-2">
-              <ButtonLink to={`/play?board=${board + 1}`} variant="wood" size="lg" block>
+          {state.phase === 'passed-out' && (
+            <Card className="w-full space-y-3 text-center">
+              <CardTitle className="font-heading font-normal">Everyone passed</CardTitle>
+              <CardDescription>No contract this time. Deal again.</CardDescription>
+              <ButtonLink to={`/play?board=${board + 1}`} variant="wood" block>
                 Next board
               </ButtonLink>
-              <ButtonLink to="/" variant="ghost" block>
-                Back to Today
-              </ButtonLink>
-            </div>
-          </Card>
-        )}
+            </Card>
+          )}
+
+          {result && (
+            <Card className="animate-pop-in w-full space-y-3 text-center">
+              <CardTitle className="font-heading font-normal">
+                {contractLabel(result.contract)} by {SEAT_NAME[result.contract.declarer]}:{' '}
+                {result.made
+                  ? `made${result.diff > 0 ? ` +${result.diff}` : ''}`
+                  : `down ${-result.diff}`}
+              </CardTitle>
+              <CardDescription className="text-base">
+                {result.declarerSide === 'NS' ? 'Your side' : 'They'} took {result.tricks} tricks.{' '}
+                {result.humanPoints >= 0 ? `+${result.humanPoints}` : result.humanPoints} for you.
+              </CardDescription>
+              <div className="flex flex-col gap-2">
+                <ButtonLink to={`/play?board=${board + 1}`} variant="wood" size="lg" block>
+                  Next board
+                </ButtonLink>
+                <ButtonLink to="/" variant="ghost" block>
+                  Back to Today
+                </ButtonLink>
+              </div>
+            </Card>
+          )}
+        </div>
       </div>
     </div>
   )
 }
 
-function Banner({ state }: { state: GameState }) {
-  const turnName = SEAT_NAME[state.turn]
-  const who = controller(state, state.turn) === 'human' ? 'Your turn' : `${turnName} is thinking`
+/** Compact status: one clear line, with board, dealer and vulnerability secondary. */
+function StatusHeader({ state }: { state: GameState }) {
+  const youAct = controller(state, state.turn) === 'human'
+  let primary = 'Hand over'
+  if (state.phase === 'auction')
+    primary = youAct ? 'Your turn to bid' : `${SEAT_NAME[state.turn]} is bidding`
+  else if (state.phase === 'play')
+    primary = youAct ? 'Your turn to play' : `${SEAT_NAME[state.turn]} is playing`
+  else if (state.phase === 'passed-out') primary = 'Passed out'
   return (
-    <div className="flex flex-wrap items-center justify-between gap-2 text-foreground/90">
-      <span className="text-xs tracking-[0.12em] uppercase">
-        Board {state.seed} · Dealer {SEAT_NAME[state.dealer]}
+    <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
+      <span className="font-heading text-lg">{primary}</span>
+      <span className="text-xs tracking-[0.1em] text-foreground/80 uppercase">
+        Board {state.seed} · Dealer {SEAT_NAME[state.dealer]} · Vul {VUL_LABEL[state.vul]}
       </span>
-      <span className="font-heading text-lg">
-        {state.phase === 'auction' && `Bidding · ${who}`}
-        {state.phase === 'play' &&
-          state.contract &&
-          `${contractLabel(state.contract)} by ${SEAT_NAME[state.contract.declarer]} · ${who}`}
-        {state.phase === 'done' && 'Hand over'}
-        {state.phase === 'passed-out' && 'Passed out'}
+    </div>
+  )
+}
+
+/** One seat: its label (with dealer/turn markers) and its cards — a fan of
+ *  backs while concealed, readable faces when the game state reveals them. */
+function SeatArea({
+  seat,
+  state,
+  showAll,
+  onPlay,
+  hintCard,
+}: {
+  seat: Seat
+  state: GameState
+  showAll: boolean
+  onPlay?: (c: PlayingCard) => void
+  hintCard?: PlayingCard
+}) {
+  const hand = visibleHand(state, seat, showAll)
+  const remaining = cardsOf(state.hands[seat]).length
+  const active = state.turn === seat && (state.phase === 'auction' || state.phase === 'play')
+  const playable =
+    state.phase === 'play' && active && controller(state, seat) === 'human' && Boolean(onPlay)
+  const legal = playable ? legalCards(state.hands[seat], state.current) : []
+
+  const partnerTag = seat === partnerOf(HUMAN) ? ' · Partner' : ''
+  const youTag = seat === HUMAN ? 'You' : `${SEAT_NAME[seat]}${partnerTag}`
+  const label = (
+    <div className="flex items-center justify-center gap-1.5">
+      <span
+        className={cn(
+          'rounded px-1 text-[0.7rem] tracking-[0.08em] uppercase',
+          active ? 'bg-primary/20 text-foreground ring-1 ring-primary' : 'text-foreground/80',
+        )}
+      >
+        {youTag}
       </span>
-      {state.phase === 'play' && (
-        <span className="text-sm tabular-nums">
-          Tricks: we {state.won.NS} · they {state.won.EW}
+      {state.dealer === seat && (
+        <span
+          className="flex size-4 items-center justify-center rounded-full bg-foreground/85 text-[0.6rem] font-bold text-background"
+          title="Dealer"
+          aria-label="Dealer"
+        >
+          D
         </span>
       )}
     </div>
   )
-}
 
-function Seatbox({
-  seat,
-  state,
-  onPlay,
-  hintCard,
-  compact,
-}: {
-  seat: Seat
-  state: GameState
-  onPlay?: (c: PlayingCard) => void
-  hintCard?: PlayingCard
-  compact?: boolean
-}) {
-  const hand = visibleHand(state, seat)
-  const count = cardsOf(state.hands[seat]).length
-  const isTurn = state.turn === seat && (state.phase === 'auction' || state.phase === 'play')
-  const playable = state.phase === 'play' && isTurn && controller(state, seat) === 'human' && onPlay
-  const legal = playable ? legalCards(state.hands[seat], state.current) : []
-  const isDummy = dummySeat(state) === seat && state.phase !== 'auction'
+  const side = seat === 'W' || seat === 'E'
 
-  const title = (
-    <div className="flex items-center gap-2 text-foreground/90">
-      <span className={cn('font-heading text-base', isTurn && 'underline underline-offset-4')}>
-        {seat === HUMAN ? 'You' : SEAT_NAME[seat]}
-      </span>
-      {isDummy && <span className="text-xs tracking-[0.12em] uppercase">dummy</span>}
-      {seat !== HUMAN && state.phase === 'play' && controller(state, seat) === 'human' && (
-        <span className="text-xs tracking-[0.12em] uppercase">you play this hand</span>
-      )}
-      {state.contract && seat === state.contract.declarer && state.phase !== 'auction' && (
-        <span className="text-xs tracking-[0.12em] uppercase">declarer</span>
-      )}
-    </div>
-  )
-
-  if (!hand) {
+  if (seat === HUMAN) {
     return (
-      <div
-        className={cn('flex flex-col gap-1', compact ? 'items-center text-center' : 'items-start')}
-      >
-        {title}
-        <div
-          className={cn('flex', compact ? 'flex-wrap justify-center' : '')}
-          aria-label={`${count} cards`}
-        >
-          {Array.from({ length: Math.min(count, compact ? 4 : 13) }).map((_, i) => (
-            <CardBack key={i} className={i > 0 ? '-ml-4' : ''} />
-          ))}
-          {compact && (
-            <span className="ml-2 self-center text-sm text-foreground/90 tabular-nums">
-              {count}
-            </span>
-          )}
-        </div>
+      <div className="flex flex-col items-center gap-1">
+        <HandFaces
+          hand={hand!}
+          size="md"
+          legal={playable ? legal : undefined}
+          onPlay={playable ? onPlay : undefined}
+          hintCard={hintCard}
+        />
+        {label}
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      {title}
-      <HandRows
-        hand={hand}
-        legal={legal}
-        onPlay={playable ? onPlay : undefined}
-        hintCard={hintCard}
-      />
-    </div>
-  )
-}
-
-function HandRows({
-  hand,
-  legal,
-  onPlay,
-  hintCard,
-}: {
-  hand: Hand
-  legal: PlayingCard[]
-  onPlay?: (c: PlayingCard) => void
-  hintCard?: PlayingCard
-}) {
-  return (
-    <div className="flex flex-wrap gap-1">
-      {HAND_SUITS.map((suit) =>
-        hand[suit].map((rank) => {
-          const card = { suit, rank }
-          const isLegal = legal.some((c) => c.suit === suit && c.rank === rank)
-          const hint = hintCard?.suit === suit && hintCard?.rank === rank
-          return (
-            <CardChip
-              key={rank + suit}
-              card={card}
-              size="md"
-              highlight={hint}
-              onClick={onPlay ? () => onPlay(card) : undefined}
-              disabled={onPlay ? !isLegal : false}
-            />
-          )
-        }),
+    <div className={cn('flex items-center gap-1', side ? 'flex-col' : 'flex-col')}>
+      {label}
+      {hand ? (
+        <HandFaces
+          hand={hand}
+          size="sm"
+          columns={side}
+          legal={playable ? legal : undefined}
+          onPlay={playable ? onPlay : undefined}
+          hintCard={hintCard}
+        />
+      ) : (
+        <Fan count={remaining} orient={side ? 'vertical' : 'horizontal'} size="md" />
       )}
     </div>
   )
 }
 
-function TrickArea({ state }: { state: GameState }) {
+/** A readable hand of faces, grouped by suit with small gaps between groups. */
+function HandFaces({
+  hand,
+  size,
+  legal,
+  onPlay,
+  hintCard,
+  columns,
+}: {
+  hand: Hand
+  size: 'xs' | 'sm' | 'md' | 'lg'
+  legal?: PlayingCard[]
+  onPlay?: (c: PlayingCard) => void
+  hintCard?: PlayingCard
+  columns?: boolean
+}) {
+  return (
+    <div
+      className={cn(
+        'flex flex-wrap justify-center gap-y-1',
+        columns ? 'max-w-[7.5rem] gap-x-1' : 'gap-x-2',
+      )}
+    >
+      {HAND_SUITS.map((suit) =>
+        hand[suit].length ? (
+          <div key={suit} className="flex gap-0.5">
+            {hand[suit].map((rank) => {
+              const card = { suit, rank }
+              const isLegalCard = legal?.some((c) => c.suit === suit && c.rank === rank) ?? false
+              const isHint = hintCard?.suit === suit && hintCard?.rank === rank
+              return (
+                <CardChip
+                  key={rank + suit}
+                  card={card}
+                  size={size}
+                  highlight={isHint}
+                  selectable={Boolean(onPlay)}
+                  onClick={onPlay ? () => onPlay(card) : undefined}
+                  disabled={onPlay ? !isLegalCard : false}
+                />
+              )
+            })}
+          </div>
+        ) : null,
+      )}
+    </div>
+  )
+}
+
+/** The centre of the table: the auction during bidding, the played trick during play. */
+function Centre({ state }: { state: GameState }) {
+  if (state.phase === 'play' || state.phase === 'done') return <TrickCentre state={state} />
+  return <AuctionHistory state={state} />
+}
+
+function AuctionHistory({ state }: { state: GameState }) {
+  const pad = SEAT_COLS.indexOf(state.dealer)
+  return (
+    <div className="mx-auto w-full max-w-sm rounded-xl border bg-card/85 p-3 text-card-foreground shadow-card">
+      <p className="mb-1.5 text-center text-xs tracking-[0.16em] text-muted-foreground uppercase">
+        Auction
+      </p>
+      <div className="grid grid-cols-4 gap-x-1 text-center">
+        {SEAT_COLS.map((s) => (
+          <span
+            key={s}
+            className={cn(
+              'flex items-center justify-center gap-1 border-b border-border/60 pb-1 text-xs tracking-[0.08em] uppercase',
+              state.turn === s && state.phase === 'auction'
+                ? 'font-bold text-primary'
+                : 'text-muted-foreground',
+            )}
+          >
+            {s === HUMAN ? 'You' : SEAT_NAME[s]}
+            {state.dealer === s && (
+              <span className="rounded-full bg-foreground/80 px-1 text-[0.6rem] text-background">
+                D
+              </span>
+            )}
+          </span>
+        ))}
+        {Array.from({ length: pad }).map((_, i) => (
+          <span key={`pad${i}`} />
+        ))}
+        {state.auction.map((e, i) => (
+          <span
+            key={i}
+            className={cn(
+              'py-1 font-heading text-xl',
+              e.call.type === 'pass' && 'text-muted-foreground',
+            )}
+          >
+            {callLabel(e.call)}
+          </span>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function TrickCentre({ state }: { state: GameState }) {
   const last = state.tricks[state.tricks.length - 1]
   const showing = state.current.cards.length ? state.current : last
   const slot = (seat: Seat): ReactNode => {
     const play = showing?.cards.find((p) => p.seat === seat)
     return play ? (
-      <CardChip card={play.card} size="sm" />
+      <CardChip card={play.card} size="md" />
     ) : (
-      <span className="inline-block h-12 w-9" />
+      <span className="inline-block h-14 w-10" />
     )
   }
   return (
     <div
-      className="grid grid-cols-3 grid-rows-3 place-items-center gap-1"
+      className="mx-auto grid grid-cols-3 grid-rows-3 place-items-center gap-1"
       aria-label="Current trick"
     >
       <span /> {slot('N')} <span />
-      {slot('W')}{' '}
-      <span className="text-xs text-foreground/90">
+      {slot('W')}
+      <span className="text-[0.65rem] text-foreground/80">
         {showing?.winner ? `${SEAT_NAME[showing.winner]} won` : ''}
-      </span>{' '}
+      </span>
       {slot('E')}
       <span /> {slot('S')} <span />
     </div>
   )
 }
 
-function AuctionPanel({
-  state,
-  onCall,
-  hintCall,
-}: {
-  state: GameState
-  onCall: (c: Call) => void
-  hintCall?: Call
-}) {
-  const humanTurn = state.turn === HUMAN
-  const calls = legalCalls(state.auction)
-  const bids = calls.filter((c) => c.type === 'bid')
-  const levels = [...new Set(bids.map((c) => (c.type === 'bid' ? c.level : 0)))].slice(0, 3)
+/** Level 1–7, denomination C/D/H/S/NT, Pass/Double/Redouble, one submission. */
+function BiddingControls({ state, onCall }: { state: GameState; onCall: (c: Call) => void }) {
+  const [level, setLevel] = useState<number | null>(null)
+  const [strain, setStrain] = useState<Strain | null>(null)
+  const yourTurn = state.turn === HUMAN
+
+  if (!yourTurn) {
+    return (
+      <div className="flex min-h-[8.5rem] items-center justify-center">
+        <p className="text-sm text-foreground/80">Waiting for the other players…</p>
+      </div>
+    )
+  }
+
+  const bidLegal = (lv: number, st: Strain) =>
+    isLegal(state.auction, { type: 'bid', level: lv, strain: st })
+  const levelOpen = (lv: number) => STRAINS.some((st) => bidLegal(lv, st))
+  // Default to the lowest legal level so the suit buttons are live right away.
+  const lowest = [1, 2, 3, 4, 5, 6, 7].find(levelOpen) ?? 1
+  const selLevel = level !== null && levelOpen(level) ? level : lowest
+  const strainOpen = (st: Strain) => bidLegal(selLevel, st)
+  const canDouble = isLegal(state.auction, { type: 'double' })
+  const canRedouble = isLegal(state.auction, { type: 'redouble' })
+  const ready = strain !== null && bidLegal(selLevel, strain)
+
+  const pick = (lv: number) => {
+    setLevel(lv)
+    if (strain && !bidLegal(lv, strain)) setStrain(null)
+  }
+  const submit = () => {
+    if (ready) {
+      onCall({ type: 'bid', level: selLevel, strain: strain! })
+      setLevel(null)
+      setStrain(null)
+    }
+  }
+
   return (
-    <Card className="space-y-3">
-      <div className="grid grid-cols-4 gap-1 text-center text-sm">
-        {(['W', 'N', 'E', 'S'] as Seat[]).map((s) => (
-          <span key={s} className="text-xs tracking-[0.12em] text-muted-foreground uppercase">
-            {s === HUMAN ? 'You' : SEAT_NAME[s]}
-          </span>
-        ))}
-        {Array.from({ length: (['W', 'N', 'E', 'S'] as Seat[]).indexOf(state.dealer) }).map(
-          (_, i) => (
-            <span key={`pad${i}`} />
-          ),
-        )}
-        {state.auction.map((e, i) => (
-          <span key={i} className="font-heading text-lg">
-            {callLabel(e.call)}
-          </span>
+    <div className="w-full max-w-md space-y-2" role="group" aria-label="Bidding box">
+      <div className="grid grid-cols-3 gap-2">
+        <Button variant="secondary" onClick={() => onCall({ type: 'pass' })}>
+          Pass
+        </Button>
+        <Button
+          variant="secondary"
+          disabled={!canDouble}
+          onClick={() => onCall({ type: 'double' })}
+          aria-label="Double"
+        >
+          Double
+        </Button>
+        <Button
+          variant="secondary"
+          disabled={!canRedouble}
+          onClick={() => onCall({ type: 'redouble' })}
+          aria-label="Redouble"
+        >
+          Redouble
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-7 gap-1" role="radiogroup" aria-label="Level">
+        {[1, 2, 3, 4, 5, 6, 7].map((lv) => (
+          <button
+            key={lv}
+            type="button"
+            role="radio"
+            aria-checked={selLevel === lv}
+            aria-label={`Level ${lv}`}
+            disabled={!levelOpen(lv)}
+            onClick={() => pick(lv)}
+            className={cn(
+              'focus-ring press h-10 rounded-md border font-heading text-lg font-bold',
+              selLevel === lv ? 'bg-primary text-primary-foreground' : 'card-face',
+              !levelOpen(lv) && 'opacity-30',
+            )}
+          >
+            {lv}
+          </button>
         ))}
       </div>
-      {humanTurn && (
-        <div className="space-y-2" role="group" aria-label="Bidding box">
-          <Button
-            variant="wood"
-            size="lg"
-            block
-            onClick={() => onCall({ type: 'pass' })}
-            className={cn(hintCall?.type === 'pass' && 'ring-4 ring-primary')}
+
+      <div className="grid grid-cols-5 gap-1" role="radiogroup" aria-label="Denomination">
+        {STRAINS.map((st) => (
+          <button
+            key={st}
+            type="button"
+            role="radio"
+            aria-checked={strain === st}
+            aria-label={st === 'NT' ? 'no trump' : SUIT_WORD[st]}
+            disabled={!strainOpen(st)}
+            onClick={() => setStrain(st)}
+            className={cn(
+              'focus-ring press card-face h-10 rounded-md border font-heading text-lg font-bold',
+              strain === st && 'z-10 ring-3 ring-primary',
+              st !== 'NT' && `suit-ink-${st}`,
+              !strainOpen(st) && 'opacity-30',
+            )}
           >
-            Pass
-          </Button>
-          {levels.map((level) => (
-            <div key={level} className="grid grid-cols-5 gap-2">
-              {(['C', 'D', 'H', 'S', 'NT'] as const).map((strain) => {
-                const c = bids.find(
-                  (b) => b.type === 'bid' && b.level === level && b.strain === strain,
-                )
-                const isHint =
-                  hintCall?.type === 'bid' && hintCall.level === level && hintCall.strain === strain
-                return (
-                  <button
-                    key={strain}
-                    type="button"
-                    disabled={!c}
-                    onClick={() => c && onCall(c)}
-                    className={cn(
-                      'focus-ring press h-11 rounded-md border font-heading text-lg font-bold',
-                      c ? 'bg-card text-card-foreground' : 'opacity-30',
-                      isHint && 'ring-4 ring-primary',
-                      strain !== 'NT' && `suit-ink-${strain}`,
-                    )}
-                  >
-                    {level}
-                    {STRAIN_LABEL[strain]}
-                  </button>
-                )
-              })}
-            </div>
-          ))}
-        </div>
-      )}
-    </Card>
+            {STRAIN_LABEL[st]}
+          </button>
+        ))}
+      </div>
+
+      <Button variant="wood" block size="lg" disabled={!ready} onClick={submit}>
+        {ready ? `Bid ${selLevel}${STRAIN_LABEL[strain!]}` : 'Pick a suit'}
+      </Button>
+    </div>
   )
+}
+
+const SUIT_WORD: Record<Strain, string> = {
+  C: 'clubs',
+  D: 'diamonds',
+  H: 'hearts',
+  S: 'spades',
+  NT: 'no trump',
+}
+
+/** A small centred hint that pops open into a bubble and shrinks on close. */
+function HintControl({
+  shown,
+  tip,
+  canHint,
+  onAsk,
+  onClose,
+}: {
+  shown: { text: string; card?: PlayingCard; call?: Call } | null
+  tip: string | null
+  canHint: boolean
+  onAsk: () => void
+  onClose: () => void
+}) {
+  return (
+    <div className="relative flex flex-col items-center gap-1">
+      {tip && !shown && <p className="text-center text-sm text-foreground/90">{tip}</p>}
+      <div
+        className={cn(
+          'absolute bottom-full mb-2 w-72 max-w-[80vw] origin-bottom rounded-lg border bg-card p-3 text-center text-base text-card-foreground shadow-popover transition-[transform,opacity] duration-200 ease-spring',
+          shown ? 'scale-100 opacity-100' : 'pointer-events-none scale-50 opacity-0',
+        )}
+        role="status"
+        aria-live="polite"
+      >
+        <p>
+          <strong>
+            {shown?.call ? callLabel(shown.call) : shown?.card ? 'Play the highlighted card.' : ''}
+          </strong>{' '}
+          {shown?.text}
+        </p>
+      </div>
+      <Button
+        variant="secondary"
+        size="sm"
+        disabled={!canHint && !shown}
+        onClick={() => (shown ? onClose() : onAsk())}
+      >
+        {shown ? 'Close hint' : 'Hint'}
+      </Button>
+    </div>
+  )
+}
+
+function partnerOf(seat: Seat): Seat {
+  return ({ N: 'S', S: 'N', E: 'W', W: 'E' } as Record<Seat, Seat>)[seat]
 }

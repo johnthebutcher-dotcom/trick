@@ -4,7 +4,7 @@
  * hint and the opponents are the same mind.
  */
 import { SUIT_SYMBOL, type Card, type Hand, type Suit } from '@/features/bridge/cards'
-import type { Strain } from './auction'
+import type { Risk, Strain } from './auction'
 import { cardsOf, next, partner, rankValue, sameSide, type Seat } from './deal'
 
 export interface Trick {
@@ -185,23 +185,47 @@ function countSuit(hand: Hand, suit: Suit): number {
   return hand[suit].length
 }
 
-/** Duplicate-style score for the declaring side, not vulnerable. */
+/** Penalty points for going `n` tricks down, by double state and vulnerability. */
+function undertrickPenalty(n: number, risk: Risk, vulnerable: boolean): number {
+  if (risk === 'none') return (vulnerable ? 100 : 50) * n
+  let pts = 0
+  for (let i = 1; i <= n; i++) {
+    if (vulnerable) pts += i === 1 ? 200 : 300
+    else pts += i === 1 ? 100 : i <= 3 ? 200 : 300
+  }
+  return risk === 'redoubled' ? pts * 2 : pts
+}
+
+/**
+ * Duplicate-style score for the declaring side: part-scores, games, slams,
+ * doubling and vulnerability. Defaults to undoubled, not vulnerable.
+ */
 export function score(
   level: number,
   strain: Strain,
   tricksWon: number,
+  risk: Risk = 'none',
+  vulnerable = false,
 ): { points: number; made: boolean; diff: number } {
   const needed = 6 + level
   const diff = tricksWon - needed
-  if (diff < 0) return { points: -50 * -diff, made: false, diff }
+  if (diff < 0) return { points: -undertrickPenalty(-diff, risk, vulnerable), made: false, diff }
+
+  const mult = risk === 'doubled' ? 2 : risk === 'redoubled' ? 4 : 1
   const perTrick = strain === 'C' || strain === 'D' ? 20 : 30
-  let trickScore = perTrick * level + (strain === 'NT' ? 10 : 0)
-  const overtricks = diff * perTrick
-  let bonus = trickScore >= 100 ? 300 : 50
-  if (level === 6) bonus += 500
-  if (level === 7) bonus += 1000
-  trickScore += overtricks
-  return { points: trickScore + bonus, made: true, diff }
+  const contractTricks = (perTrick * level + (strain === 'NT' ? 10 : 0)) * mult
+
+  let overtricks: number
+  if (risk === 'none') overtricks = diff * perTrick
+  else overtricks = diff * (vulnerable ? 200 : 100) * (risk === 'redoubled' ? 2 : 1)
+
+  let bonus = contractTricks >= 100 ? (vulnerable ? 500 : 300) : 50
+  if (level === 6) bonus += vulnerable ? 750 : 500
+  if (level === 7) bonus += vulnerable ? 1500 : 1000
+  if (risk === 'doubled') bonus += 50
+  if (risk === 'redoubled') bonus += 100
+
+  return { points: contractTricks + overtricks + bonus, made: true, diff }
 }
 
 export function seatAfter(seat: Seat): Seat {

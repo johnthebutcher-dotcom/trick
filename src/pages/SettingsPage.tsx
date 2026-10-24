@@ -90,13 +90,13 @@ export function SettingsPage() {
 
       <Card className="flex flex-col gap-4 @sm:flex-row @sm:items-center @sm:justify-between">
         <div>
-          <CardTitle className="font-heading font-normal">Suit colours</CardTitle>
+          <CardTitle className="font-heading font-normal">Card colours</CardTitle>
           <CardDescription>
-            Four colours gives clubs and diamonds their own colour, so suits are easy to tell apart.
+            Multicolour gives clubs and diamonds their own colour, so no two suits look alike.
           </CardDescription>
         </div>
-        <div className="flex gap-2" role="radiogroup" aria-label="Suit colours">
-          {([false, true] as const).map((four) => (
+        <div className="flex gap-2" role="radiogroup" aria-label="Card colours">
+          {([true, false] as const).map((four) => (
             <button
               key={String(four)}
               type="button"
@@ -104,11 +104,37 @@ export function SettingsPage() {
               aria-checked={prefs.fourColour === four}
               onClick={() => learner.setPrefs({ ...prefs, fourColour: four })}
               className={cn(
-                'focus-ring h-12 min-w-[5.5rem] rounded-md px-4 text-base transition-shadow duration-200 ease-soft',
+                'focus-ring h-12 min-w-[6.5rem] rounded-md px-4 text-base transition-shadow duration-200 ease-soft',
                 prefs.fourColour === four ? 'neu-inset' : 'neu',
               )}
             >
-              {four ? 'Four' : 'Two'}
+              {four ? 'Multicolour' : 'Classic'}
+            </button>
+          ))}
+        </div>
+      </Card>
+
+      <Card className="flex flex-col gap-4 @sm:flex-row @sm:items-center @sm:justify-between">
+        <div>
+          <CardTitle className="font-heading font-normal">Show all hands</CardTitle>
+          <CardDescription>
+            Teaching mode: see every player's cards face up while you learn. Off plays a real game.
+          </CardDescription>
+        </div>
+        <div className="flex gap-2" role="radiogroup" aria-label="Show all hands">
+          {([true, false] as const).map((v) => (
+            <button
+              key={String(v)}
+              type="button"
+              role="radio"
+              aria-checked={prefs.showAll === v}
+              onClick={() => learner.setPrefs({ ...prefs, showAll: v })}
+              className={cn(
+                'focus-ring h-12 min-w-[5.5rem] rounded-md px-4 text-base transition-shadow duration-200 ease-soft',
+                prefs.showAll === v ? 'neu-inset' : 'neu',
+              )}
+            >
+              {v ? 'On' : 'Off'}
             </button>
           ))}
         </div>
