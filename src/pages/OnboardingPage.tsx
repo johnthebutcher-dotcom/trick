@@ -36,7 +36,7 @@ export function OnboardingPage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-[70dvh] max-w-md flex-col gap-8 pt-6">
+    <div className="mx-auto flex min-h-[70dvh] w-full max-w-md flex-col gap-8 pt-6">
       <div key={index} className="animate-pop-in space-y-3">
         <p className="text-xs tracking-[0.12em] text-foreground/90 uppercase">
           {index + 1} of {steps.length}

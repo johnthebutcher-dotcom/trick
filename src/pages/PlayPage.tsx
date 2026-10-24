@@ -63,6 +63,7 @@ function Table({
     controller(state, state.turn) === 'human' &&
     (state.phase === 'auction' || state.phase === 'play')
   const tip = tips && humanTurn ? tipFor(state, HUMAN) : null
+  const over = state.phase === 'passed-out' || state.phase === 'done'
 
   function onCall(c: Call) {
     setShown(null)
@@ -73,53 +74,98 @@ function Table({
     play(card)
   }
 
-  // A bridge table is a diamond: partner North across the top, opponents on the
-  // sides, your hand along the bottom, and one anchor panel dead-centre. The
-  // column fills the screen — North pinned to the top edge, your hand to the
-  // bottom edge, the centre band filling the space between — so the four seats
-  // stay symmetric around the middle in both orientations.
   return (
-    <div className="mx-auto flex min-h-0 w-full max-w-4xl flex-1 flex-col gap-1">
+    <div className="mx-auto flex min-h-0 w-full max-w-4xl flex-1 flex-col gap-2">
       <StatusHeader state={state} />
 
-      {/* justify-evenly fills the height with balanced spacing in both
-          orientations: a tight diamond in the short landscape viewport, an
-          evenly spread one in portrait — never one lopsided felt void. */}
-      <div className="flex min-h-0 flex-1 flex-col justify-evenly gap-2">
-        <div className="flex justify-center">
-          <SeatArea
-            seat="N"
-            state={state}
-            showAll={showAll}
-            onPlay={onPlay}
-            hintCard={shown?.card}
-          />
+      {/* Below the header: in portrait a single centred column (table, then
+          controls); in landscape two columns (table left, controls right) so a
+          short screen never pushes the bidding box off the bottom. */}
+      <div className="flex min-h-0 flex-1 flex-col justify-center gap-4 landscape:flex-row landscape:items-center landscape:gap-6">
+        {/* The table: North across the top, West/East on the sides, the auction
+          or the played trick in the centre, your hand along the bottom. */}
+        <div className="grid grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-2 landscape:flex-1">
+          <div className="col-start-2 row-start-1 justify-self-center">
+            <SeatArea
+              seat="N"
+              state={state}
+              showAll={showAll}
+              onPlay={onPlay}
+              hintCard={shown?.card}
+            />
+          </div>
+          <div className="col-start-1 row-start-2">
+            <SeatArea seat="W" state={state} showAll={showAll} />
+          </div>
+          <div className="col-start-3 row-start-2">
+            <SeatArea seat="E" state={state} showAll={showAll} />
+          </div>
+          <div className="col-start-2 row-start-2">
+            <Centre state={state} />
+          </div>
+          <div className="col-span-3 row-start-3 justify-self-center">
+            <SeatArea
+              seat="S"
+              state={state}
+              showAll={showAll}
+              onPlay={onPlay}
+              hintCard={shown?.card}
+            />
+          </div>
         </div>
 
-        <div className="flex items-center justify-center gap-3 sm:gap-4">
-          <SeatArea seat="W" state={state} showAll={showAll} />
-          <CentreHub
-            state={state}
-            board={board}
-            result={result}
-            humanTurn={humanTurn}
-            tip={tip}
-            shown={shown}
-            onCall={onCall}
-            onAsk={() => setShown(hint())}
-            onCloseHint={() => setShown(null)}
-          />
-          <SeatArea seat="E" state={state} showAll={showAll} />
-        </div>
+        {/* Controls: below the hand in portrait, a side panel in landscape. */}
+        <div className="flex flex-col items-center gap-2 landscape:w-96 landscape:shrink-0 landscape:self-center">
+          {!over && (
+            <div className="flex w-full flex-col items-center gap-2">
+              {state.phase === 'auction' && <BiddingControls state={state} onCall={onCall} />}
+              {state.phase === 'play' && (
+                <p className="min-h-6 text-center text-sm text-foreground/90">
+                  {humanTurn ? 'Tap a card to play it.' : `${SEAT_NAME[state.turn]} is playing…`}
+                </p>
+              )}
+              <HintControl
+                shown={shown}
+                tip={tip}
+                canHint={humanTurn}
+                onAsk={() => setShown(hint())}
+                onClose={() => setShown(null)}
+              />
+            </div>
+          )}
 
-        <div className="flex justify-center">
-          <SeatArea
-            seat="S"
-            state={state}
-            showAll={showAll}
-            onPlay={onPlay}
-            hintCard={shown?.card}
-          />
+          {state.phase === 'passed-out' && (
+            <Card className="w-full space-y-3 text-center">
+              <CardTitle className="font-heading font-normal">Everyone passed</CardTitle>
+              <CardDescription>No contract this time. Deal again.</CardDescription>
+              <ButtonLink to={`/play?board=${board + 1}`} variant="wood" block>
+                Next board
+              </ButtonLink>
+            </Card>
+          )}
+
+          {result && (
+            <Card className="animate-pop-in w-full space-y-3 text-center">
+              <CardTitle className="font-heading font-normal">
+                {contractLabel(result.contract)} by {SEAT_NAME[result.contract.declarer]}:{' '}
+                {result.made
+                  ? `made${result.diff > 0 ? ` +${result.diff}` : ''}`
+                  : `down ${-result.diff}`}
+              </CardTitle>
+              <CardDescription className="text-base">
+                {result.declarerSide === 'NS' ? 'Your side' : 'They'} took {result.tricks} tricks.{' '}
+                {result.humanPoints >= 0 ? `+${result.humanPoints}` : result.humanPoints} for you.
+              </CardDescription>
+              <div className="flex flex-col gap-2">
+                <ButtonLink to={`/play?board=${board + 1}`} variant="wood" size="lg" block>
+                  Next board
+                </ButtonLink>
+                <ButtonLink to="/" variant="ghost" block>
+                  Back to Today
+                </ButtonLink>
+              </div>
+            </Card>
+          )}
         </div>
       </div>
     </div>
@@ -145,118 +191,8 @@ function StatusHeader({ state }: { state: GameState }) {
   )
 }
 
-/**
- * The anchor at the centre of the table. One card-coloured panel in every
- * phase, so the table has a solid heart instead of a sea of felt: the auction
- * (history + your bidding box) while bidding, the played trick while playing,
- * and the result when the hand ends.
- */
-function CentreHub({
-  state,
-  board,
-  result,
-  humanTurn,
-  tip,
-  shown,
-  onCall,
-  onAsk,
-  onCloseHint,
-}: {
-  state: GameState
-  board: number
-  result: ReturnType<typeof useGame>['result']
-  humanTurn: boolean
-  tip: string | null
-  shown: { text: string; card?: PlayingCard; call?: Call } | null
-  onCall: (c: Call) => void
-  onAsk: () => void
-  onCloseHint: () => void
-}) {
-  const over = state.phase === 'passed-out' || state.phase === 'done'
-
-  // Result / passed-out: the panel becomes the outcome card.
-  if (over) {
-    return (
-      <div className="w-full max-w-[30rem] min-w-0">
-        {state.phase === 'passed-out' && !result && (
-          <Card className="animate-pop-in w-full space-y-3 text-center">
-            <CardTitle className="font-heading font-normal">Everyone passed</CardTitle>
-            <CardDescription>No contract this time. Deal again.</CardDescription>
-            <ButtonLink to={`/play?board=${board + 1}`} variant="wood" size="lg" block>
-              Next board
-            </ButtonLink>
-          </Card>
-        )}
-        {result && (
-          <Card className="animate-pop-in w-full space-y-3 text-center">
-            <CardTitle className="font-heading font-normal">
-              {contractLabel(result.contract)} by {SEAT_NAME[result.contract.declarer]}:{' '}
-              {result.made
-                ? `made${result.diff > 0 ? ` +${result.diff}` : ''}`
-                : `down ${-result.diff}`}
-            </CardTitle>
-            <CardDescription className="text-base">
-              {result.declarerSide === 'NS' ? 'Your side' : 'They'} took {result.tricks} tricks.{' '}
-              {result.humanPoints >= 0 ? `+${result.humanPoints}` : result.humanPoints} for you.
-            </CardDescription>
-            <div className="flex flex-col gap-2">
-              <ButtonLink to={`/play?board=${board + 1}`} variant="wood" size="lg" block>
-                Next board
-              </ButtonLink>
-              <ButtonLink to="/" variant="ghost" block>
-                Back to Today
-              </ButtonLink>
-            </div>
-          </Card>
-        )}
-      </div>
-    )
-  }
-
-  // During play the trick is the focus, so the panel hugs it (a small mat on the
-  // felt) instead of the wide box the bidding box needs.
-  if (state.phase === 'play') {
-    return (
-      <div className="flex w-full max-w-[19rem] min-w-0 flex-col items-center gap-2 rounded-2xl border bg-card/90 px-4 py-3 text-card-foreground shadow-card">
-        <TrickCentre state={state} />
-        <p className="min-h-5 text-center text-sm text-card-foreground/80">
-          {humanTurn ? 'Tap a card to play it.' : `${SEAT_NAME[state.turn]} is playing…`}
-        </p>
-        <HintControl
-          shown={shown}
-          tip={tip}
-          canHint={humanTurn}
-          onAsk={onAsk}
-          onClose={onCloseHint}
-        />
-      </div>
-    )
-  }
-
-  return (
-    <div className="w-full max-w-[30rem] min-w-0 space-y-3 rounded-2xl border bg-card/90 px-3 py-3 text-card-foreground shadow-card sm:px-4">
-      <AuctionHistory state={state} />
-      {humanTurn ? (
-        <BiddingControls state={state} onCall={onCall} />
-      ) : (
-        <p className="py-2 text-center text-sm text-card-foreground/80">
-          Waiting for the other players…
-        </p>
-      )}
-      <HintControl
-        shown={shown}
-        tip={tip}
-        canHint={humanTurn}
-        onAsk={onAsk}
-        onClose={onCloseHint}
-      />
-    </div>
-  )
-}
-
 /** One seat: its label (with dealer/turn markers) and its cards — a fan of
- *  backs while concealed, readable faces when the game state reveals them. The
- *  bottom seat (you) is the hero hand: big faces fanned in one row. */
+ *  backs while concealed, readable faces when the game state reveals them. */
 function SeatArea({
   seat,
   state,
@@ -276,7 +212,6 @@ function SeatArea({
   const playable =
     state.phase === 'play' && active && controller(state, seat) === 'human' && Boolean(onPlay)
   const legal = playable ? legalCards(state.hands[seat], state.current) : []
-  const side = seat === 'W' || seat === 'E'
 
   const partnerTag = seat === partnerOf(HUMAN) ? ' · Partner' : ''
   const youTag = seat === HUMAN ? 'You' : `${SEAT_NAME[seat]}${partnerTag}`
@@ -284,8 +219,8 @@ function SeatArea({
     <div className="flex items-center justify-center gap-1.5">
       <span
         className={cn(
-          'rounded px-1.5 py-0.5 text-[0.7rem] tracking-[0.08em] uppercase',
-          active ? 'bg-primary/25 text-foreground ring-1 ring-primary' : 'text-foreground/80',
+          'rounded px-1 text-[0.7rem] tracking-[0.08em] uppercase',
+          active ? 'bg-primary/20 text-foreground ring-1 ring-primary' : 'text-foreground/80',
         )}
       >
         {youTag}
@@ -302,13 +237,14 @@ function SeatArea({
     </div>
   )
 
+  const side = seat === 'W' || seat === 'E'
+
   if (seat === HUMAN) {
     return (
-      <div className="flex flex-col items-center gap-1.5">
+      <div className="flex flex-col items-center gap-1">
         <HandFaces
           hand={hand!}
-          size="xl"
-          hero
+          size="md"
           legal={playable ? legal : undefined}
           onPlay={playable ? onPlay : undefined}
           hintCard={hintCard}
@@ -319,34 +255,25 @@ function SeatArea({
   }
 
   return (
-    <div className="flex flex-col items-center gap-1">
+    <div className={cn('flex items-center gap-1', side ? 'flex-col' : 'flex-col')}>
       {label}
       {hand ? (
         <HandFaces
           hand={hand}
-          size={side ? 'xs' : 'sm'}
+          size="sm"
           columns={side}
           legal={playable ? legal : undefined}
           onPlay={playable ? onPlay : undefined}
           hintCard={hintCard}
         />
       ) : (
-        <Fan
-          count={remaining}
-          orient={side ? 'vertical' : 'horizontal'}
-          size={side ? 'sm' : 'md'}
-        />
+        <Fan count={remaining} orient={side ? 'vertical' : 'horizontal'} size="md" />
       )}
     </div>
   )
 }
 
-/**
- * A readable hand of faces, grouped by suit. The hero hand (your cards) fans
- * with a slight in-suit overlap so all thirteen stay big and fit one row; the
- * top-left corner index keeps every covered card readable. Side hands (revealed
- * dummy/teaching) stack as compact columns.
- */
+/** A readable hand of faces, grouped by suit with small gaps between groups. */
 function HandFaces({
   hand,
   size,
@@ -354,28 +281,25 @@ function HandFaces({
   onPlay,
   hintCard,
   columns,
-  hero,
 }: {
   hand: Hand
-  size: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+  size: 'xs' | 'sm' | 'md' | 'lg'
   legal?: PlayingCard[]
   onPlay?: (c: PlayingCard) => void
   hintCard?: PlayingCard
   columns?: boolean
-  hero?: boolean
 }) {
   return (
     <div
       className={cn(
-        'flex justify-center',
-        columns ? 'max-w-[7.5rem] flex-wrap gap-x-1 gap-y-1' : 'items-end',
-        hero ? 'gap-x-2' : !columns && 'gap-x-2',
+        'flex flex-wrap justify-center gap-y-1',
+        columns ? 'max-w-[7.5rem] gap-x-1' : 'gap-x-2',
       )}
     >
       {HAND_SUITS.map((suit) =>
         hand[suit].length ? (
-          <div key={suit} className={cn('flex', hero ? '' : 'gap-0.5')}>
-            {hand[suit].map((rank, i) => {
+          <div key={suit} className="flex gap-0.5">
+            {hand[suit].map((rank) => {
               const card = { suit, rank }
               const isLegalCard = legal?.some((c) => c.suit === suit && c.rank === rank) ?? false
               const isHint = hintCard?.suit === suit && hintCard?.rank === rank
@@ -388,10 +312,6 @@ function HandFaces({
                   selectable={Boolean(onPlay)}
                   onClick={onPlay ? () => onPlay(card) : undefined}
                   disabled={onPlay ? !isLegalCard : false}
-                  className={cn(
-                    hero && i > 0 && '-ml-[1.5rem]',
-                    hero && 'transition-transform hover:z-10 focus-visible:z-10',
-                  )}
                 />
               )
             })}
@@ -402,10 +322,16 @@ function HandFaces({
   )
 }
 
+/** The centre of the table: the auction during bidding, the played trick during play. */
+function Centre({ state }: { state: GameState }) {
+  if (state.phase === 'play' || state.phase === 'done') return <TrickCentre state={state} />
+  return <AuctionHistory state={state} />
+}
+
 function AuctionHistory({ state }: { state: GameState }) {
   const pad = SEAT_COLS.indexOf(state.dealer)
   return (
-    <div>
+    <div className="mx-auto w-full max-w-sm rounded-xl border bg-card/85 p-3 text-card-foreground shadow-card">
       <p className="mb-1.5 text-center text-xs tracking-[0.16em] text-muted-foreground uppercase">
         Auction
       </p>
@@ -435,7 +361,7 @@ function AuctionHistory({ state }: { state: GameState }) {
           <span
             key={i}
             className={cn(
-              'py-0.5 font-heading text-xl',
+              'py-1 font-heading text-xl',
               e.call.type === 'pass' && 'text-muted-foreground',
             )}
           >
@@ -453,19 +379,19 @@ function TrickCentre({ state }: { state: GameState }) {
   const slot = (seat: Seat): ReactNode => {
     const play = showing?.cards.find((p) => p.seat === seat)
     return play ? (
-      <CardChip card={play.card} size="lg" />
+      <CardChip card={play.card} size="md" />
     ) : (
-      <span className="inline-block h-[4.5rem] w-[3.25rem] rounded-md border border-dashed border-card-foreground/15" />
+      <span className="inline-block h-14 w-10" />
     )
   }
   return (
     <div
-      className="mx-auto grid grid-cols-3 grid-rows-3 place-items-center gap-x-2 gap-y-1"
+      className="mx-auto grid grid-cols-3 grid-rows-3 place-items-center gap-1"
       aria-label="Current trick"
     >
       <span /> {slot('N')} <span />
       {slot('W')}
-      <span className="px-1 text-center text-xs font-bold text-primary">
+      <span className="text-[0.65rem] text-foreground/80">
         {showing?.winner ? `${SEAT_NAME[showing.winner]} won` : ''}
       </span>
       {slot('E')}
@@ -478,6 +404,15 @@ function TrickCentre({ state }: { state: GameState }) {
 function BiddingControls({ state, onCall }: { state: GameState; onCall: (c: Call) => void }) {
   const [level, setLevel] = useState<number | null>(null)
   const [strain, setStrain] = useState<Strain | null>(null)
+  const yourTurn = state.turn === HUMAN
+
+  if (!yourTurn) {
+    return (
+      <div className="flex min-h-[8.5rem] items-center justify-center">
+        <p className="text-sm text-foreground/80">Waiting for the other players…</p>
+      </div>
+    )
+  }
 
   const bidLegal = (lv: number, st: Strain) =>
     isLegal(state.auction, { type: 'bid', level: lv, strain: st })
@@ -503,7 +438,7 @@ function BiddingControls({ state, onCall }: { state: GameState; onCall: (c: Call
   }
 
   return (
-    <div className="space-y-2" role="group" aria-label="Bidding box">
+    <div className="w-full max-w-md space-y-2" role="group" aria-label="Bidding box">
       <div className="grid grid-cols-3 gap-2">
         <Button variant="secondary" onClick={() => onCall({ type: 'pass' })}>
           Pass
@@ -600,7 +535,7 @@ function HintControl({
 }) {
   return (
     <div className="relative flex flex-col items-center gap-1">
-      {tip && !shown && <p className="text-center text-sm text-card-foreground/90">{tip}</p>}
+      {tip && !shown && <p className="text-center text-sm text-foreground/90">{tip}</p>}
       <div
         className={cn(
           'absolute bottom-full mb-2 w-72 max-w-[80vw] origin-bottom rounded-lg border bg-card p-3 text-center text-base text-card-foreground shadow-popover transition-[transform,opacity] duration-200 ease-spring',

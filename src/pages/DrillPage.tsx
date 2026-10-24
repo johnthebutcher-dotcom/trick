@@ -69,7 +69,7 @@ function Drill(props: {
   const correct = state.chosen === q.answer
 
   return (
-    <div className="mx-auto flex max-w-xl flex-col gap-5">
+    <div className="mx-auto flex w-full max-w-xl flex-col gap-5">
       <div className="flex items-center justify-between text-sm text-foreground/90">
         <span className="text-xs tracking-[0.12em] uppercase">{skillMeta?.title}</span>
         <span className="tabular-nums">
@@ -177,7 +177,7 @@ function Summary({ state }: { state: ReturnType<typeof useDrill>['state'] }) {
   const missed = state.answered.filter((a) => !a.correct)
   const all = right === state.answered.length
   return (
-    <div className="mx-auto flex max-w-xl flex-col gap-6">
+    <div className="mx-auto flex w-full max-w-xl flex-col gap-6">
       <div className="animate-pop-in space-y-2 py-4 text-center">
         <p className="text-display font-heading font-normal tabular-nums">
           {right} of {state.answered.length}

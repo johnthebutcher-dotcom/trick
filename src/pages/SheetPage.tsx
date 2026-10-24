@@ -19,7 +19,7 @@ export function SheetPage() {
   const systemName = SYSTEMS.find((s) => s.id === system)?.name ?? 'Standard American'
 
   return (
-    <div className="mx-auto flex max-w-xl flex-col gap-8">
+    <div className="mx-auto flex w-full max-w-xl flex-col gap-8">
       <header className="space-y-1">
         <h1 className="text-display font-heading font-normal">Cheat-sheet</h1>
         <p className="text-foreground/90">{systemName}. Count your points, then find the row.</p>

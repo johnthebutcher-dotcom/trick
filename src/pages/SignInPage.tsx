@@ -13,7 +13,7 @@ export function SignInPage() {
 
   if (!configured) {
     return (
-      <div className="mx-auto max-w-md pt-6">
+      <div className="mx-auto w-full max-w-md pt-6">
         <SetupNotice />
       </div>
     )
@@ -43,7 +43,7 @@ export function SignInPage() {
   }
 
   return (
-    <div className="mx-auto max-w-md space-y-4 pt-6">
+    <div className="mx-auto w-full max-w-md space-y-4 pt-6">
       <Card className="space-y-4">
         <div className="space-y-1">
           <CardTitle>Sign in</CardTitle>

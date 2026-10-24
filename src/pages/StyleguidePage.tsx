@@ -60,7 +60,7 @@ export function StyleguidePage() {
   const [pops, setPops] = useState(0)
 
   return (
-    <div className="mx-auto max-w-xl space-y-10 pb-32">
+    <div className="mx-auto w-full max-w-xl space-y-10 pb-32">
       <div className="scroll-progress" aria-hidden />
 
       {/* Hero: mesh gradient, fluid type, animated gradient text, parallax ornament. */}

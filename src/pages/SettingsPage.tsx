@@ -35,7 +35,7 @@ export function SettingsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-xl space-y-4">
+    <div className="mx-auto w-full max-w-xl space-y-4">
       <h1 className="text-display font-heading font-normal">Settings</h1>
 
       <Card className="space-y-3">
