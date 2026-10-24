@@ -18,18 +18,16 @@ const RANK_TEXT: Record<CardSize, string> = {
   md: 'text-lg',
   lg: 'text-xl',
 }
-const SUIT_TEXT: Record<CardSize, string> = {
-  xs: 'text-xs',
-  sm: 'text-sm',
-  md: 'text-base',
-  lg: 'text-lg',
-}
-/** Hearts and diamonds render a touch small next to spades/clubs, so bump them. */
-const SUIT_TEXT_RED: Record<CardSize, string> = {
-  xs: 'text-sm',
-  sm: 'text-base',
-  md: 'text-lg',
-  lg: 'text-xl',
+/**
+ * Suit-symbol sizes, tuned so every suit LOOKS the same size. The glyphs are not
+ * equal in a font: ♥ and ♠ render large, ♦ and ♣ render smaller, so the narrow
+ * ones get an extra step. Hearts are the reference the owner called "perfect".
+ */
+const SUIT_SIZE: Record<Card['suit'], Record<CardSize, string>> = {
+  H: { xs: 'text-sm', sm: 'text-base', md: 'text-lg', lg: 'text-xl' },
+  S: { xs: 'text-sm', sm: 'text-base', md: 'text-lg', lg: 'text-xl' },
+  D: { xs: 'text-base', sm: 'text-lg', md: 'text-xl', lg: 'text-2xl' },
+  C: { xs: 'text-base', sm: 'text-lg', md: 'text-xl', lg: 'text-2xl' },
 }
 
 /**
@@ -55,11 +53,10 @@ export function CardChip({
   selectable?: boolean
   className?: string
 }) {
-  const red = card.suit === 'H' || card.suit === 'D'
   const body = (
     <>
       <span className={cn('leading-none font-bold', RANK_TEXT[size])}>{rankText(card.rank)}</span>
-      <span className={cn('leading-none', red ? SUIT_TEXT_RED[size] : SUIT_TEXT[size])}>
+      <span className={cn('leading-none', SUIT_SIZE[card.suit][size])}>
         {SUIT_SYMBOL[card.suit]}
       </span>
     </>

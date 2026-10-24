@@ -2,6 +2,18 @@
 
 Newest first. One entry per push or decision. Future sessions start here, so write for someone with no memory of this chat.
 
+## 2026-10-24 — Side hands anchored to the edges, bigger North, hand at the bottom, even suit sizes
+
+Owner's list (layout change explicitly approved this time):
+
+- **Even suit sizes (the "shrunken suits" fix).** Hearts were called "perfect"; the other three glyphs render smaller in the font. `CardChip` now sizes each suit symbol individually via `SUIT_SIZE[suit][size]`: ♥ and ♠ use the heart reference, ♦ and ♣ get one extra step up (they're narrower). Removed the old `SUIT_TEXT` / `SUIT_TEXT_RED` pair. If a suit still looks off, tune its row in `SUIT_SIZE`.
+- **West & East rotated 90° and anchored to the screen edges.** New `SideHand` component renders the opponents as a vertical stack of **sideways (landscape) card backs** (`h-10 w-14`, overlapped `-mt-7`) `position: fixed` to the left/right edge, vertically centred (`top-1/2 -translate-y-1/2`). When an opponent is dummy it reveals as a compact upright `columns` HandFaces. They're fixed so they truly hug the edges; the centre column is padded `px-[5.5rem]` so the auction/bidding box never slides under them.
+- **North (partner) is bigger.** `SeatArea` gained a `big` prop: North's concealed fan is `size="lg"` backs (was md) and its revealed faces are `md` (was sm). South (you) unchanged at md faces.
+- **Your hand moved to the very bottom.** The table is now a plain flex column (North / middle / South) with the middle `flex-1`, so South sits at the bottom edge and the auction+controls fill the space between. (Replaced the old 3-col grid + landscape side-panel split; both orientations now use the one column, verified no-scroll on iPad portrait & landscape and desktop.)
+- `SeatLabel` was factored out of `SeatArea` so N/S/E/W all share the turn-highlight + dealer-badge label.
+- **Checked:** `npm run check` green (lint, typecheck, format, check:effects, 57 tests, build). Screenshots: desktop + iPad portrait/landscape (dark) and iPad portrait (light) bidding, plus the play phase (dummy revealed) — edges anchored, North bigger, hand at bottom, suits even, no scroll/overlap, light mode intact.
+- **Status:** pushed to `main`.
+
 ## 2026-10-24 — Cards theme-aware (dark in dark mode), bigger suits, centred chrome + auction
 
 Owner's specific list after the revert, all small and targeted (no layout restructure — the table stays as it was):

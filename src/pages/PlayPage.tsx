@@ -75,97 +75,97 @@ function Table({
   }
 
   return (
-    <div className="mx-auto flex min-h-0 w-full max-w-4xl flex-1 flex-col gap-2">
+    <div className="relative mx-auto flex min-h-0 w-full max-w-4xl flex-1 flex-col gap-1">
       <StatusHeader state={state} />
 
-      {/* Below the header: in portrait a single centred column (table, then
-          controls); in landscape two columns (table left, controls right) so a
-          short screen never pushes the bidding box off the bottom. */}
-      <div className="flex min-h-0 flex-1 flex-col justify-center gap-4 landscape:flex-row landscape:items-center landscape:gap-6">
-        {/* The table: North across the top, West/East on the sides, the auction
-          or the played trick in the centre, your hand along the bottom. */}
-        <div className="grid grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-2 landscape:flex-1">
-          <div className="col-start-2 row-start-1 justify-self-center">
-            <SeatArea
-              seat="N"
-              state={state}
-              showAll={showAll}
-              onPlay={onPlay}
-              hintCard={shown?.card}
-            />
-          </div>
-          <div className="col-start-1 row-start-2">
-            <SeatArea seat="W" state={state} showAll={showAll} />
-          </div>
-          <div className="col-start-3 row-start-2">
-            <SeatArea seat="E" state={state} showAll={showAll} />
-          </div>
-          <div className="col-start-2 row-start-2">
-            <Centre state={state} />
-          </div>
-          <div className="col-span-3 row-start-3 justify-self-center">
-            <SeatArea
-              seat="S"
-              state={state}
-              showAll={showAll}
-              onPlay={onPlay}
-              hintCard={shown?.card}
-            />
-          </div>
+      {/* West & East: the opponents' concealed hands, lying sideways (rotated
+          90°), anchored to the left and right screen edges. */}
+      <SideHand seat="W" state={state} showAll={showAll} />
+      <SideHand seat="E" state={state} showAll={showAll} />
+
+      <div className="flex min-h-0 flex-1 flex-col">
+        {/* North (partner) across the top — the biggest fan. */}
+        <div className="flex justify-center">
+          <SeatArea
+            seat="N"
+            state={state}
+            showAll={showAll}
+            onPlay={onPlay}
+            hintCard={shown?.card}
+            big
+          />
         </div>
 
-        {/* Controls: below the hand in portrait, a side panel in landscape. */}
-        <div className="flex flex-col items-center gap-2 landscape:w-96 landscape:shrink-0 landscape:self-center">
-          {!over && (
-            <div className="flex w-full flex-col items-center gap-2">
-              {state.phase === 'auction' && <BiddingControls state={state} onCall={onCall} />}
-              {state.phase === 'play' && (
-                <p className="min-h-6 text-center text-sm text-foreground/90">
-                  {humanTurn ? 'Tap a card to play it.' : `${SEAT_NAME[state.turn]} is playing…`}
-                </p>
+        {/* The auction/trick and the controls fill the middle, padded in so they
+            never slide under the side hands at the edges. */}
+        <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 px-[5.5rem]">
+          {over ? (
+            <>
+              {state.phase === 'passed-out' && (
+                <Card className="animate-pop-in w-full max-w-sm space-y-3 text-center">
+                  <CardTitle className="font-heading font-normal">Everyone passed</CardTitle>
+                  <CardDescription>No contract this time. Deal again.</CardDescription>
+                  <ButtonLink to={`/play?board=${board + 1}`} variant="wood" size="lg" block>
+                    Next board
+                  </ButtonLink>
+                </Card>
               )}
-              <HintControl
-                shown={shown}
-                tip={tip}
-                canHint={humanTurn}
-                onAsk={() => setShown(hint())}
-                onClose={() => setShown(null)}
-              />
-            </div>
-          )}
-
-          {state.phase === 'passed-out' && (
-            <Card className="w-full space-y-3 text-center">
-              <CardTitle className="font-heading font-normal">Everyone passed</CardTitle>
-              <CardDescription>No contract this time. Deal again.</CardDescription>
-              <ButtonLink to={`/play?board=${board + 1}`} variant="wood" block>
-                Next board
-              </ButtonLink>
-            </Card>
-          )}
-
-          {result && (
-            <Card className="animate-pop-in w-full space-y-3 text-center">
-              <CardTitle className="font-heading font-normal">
-                {contractLabel(result.contract)} by {SEAT_NAME[result.contract.declarer]}:{' '}
-                {result.made
-                  ? `made${result.diff > 0 ? ` +${result.diff}` : ''}`
-                  : `down ${-result.diff}`}
-              </CardTitle>
-              <CardDescription className="text-base">
-                {result.declarerSide === 'NS' ? 'Your side' : 'They'} took {result.tricks} tricks.{' '}
-                {result.humanPoints >= 0 ? `+${result.humanPoints}` : result.humanPoints} for you.
-              </CardDescription>
-              <div className="flex flex-col gap-2">
-                <ButtonLink to={`/play?board=${board + 1}`} variant="wood" size="lg" block>
-                  Next board
-                </ButtonLink>
-                <ButtonLink to="/" variant="ghost" block>
-                  Back to Today
-                </ButtonLink>
+              {result && (
+                <Card className="animate-pop-in w-full max-w-sm space-y-3 text-center">
+                  <CardTitle className="font-heading font-normal">
+                    {contractLabel(result.contract)} by {SEAT_NAME[result.contract.declarer]}:{' '}
+                    {result.made
+                      ? `made${result.diff > 0 ? ` +${result.diff}` : ''}`
+                      : `down ${-result.diff}`}
+                  </CardTitle>
+                  <CardDescription className="text-base">
+                    {result.declarerSide === 'NS' ? 'Your side' : 'They'} took {result.tricks}{' '}
+                    tricks.{' '}
+                    {result.humanPoints >= 0 ? `+${result.humanPoints}` : result.humanPoints} for
+                    you.
+                  </CardDescription>
+                  <div className="flex flex-col gap-2">
+                    <ButtonLink to={`/play?board=${board + 1}`} variant="wood" size="lg" block>
+                      Next board
+                    </ButtonLink>
+                    <ButtonLink to="/" variant="ghost" block>
+                      Back to Today
+                    </ButtonLink>
+                  </div>
+                </Card>
+              )}
+            </>
+          ) : (
+            <>
+              <Centre state={state} />
+              <div className="flex w-full max-w-md flex-col items-center gap-2">
+                {state.phase === 'auction' && <BiddingControls state={state} onCall={onCall} />}
+                {state.phase === 'play' && (
+                  <p className="min-h-6 text-center text-sm text-foreground/90">
+                    {humanTurn ? 'Tap a card to play it.' : `${SEAT_NAME[state.turn]} is playing…`}
+                  </p>
+                )}
+                <HintControl
+                  shown={shown}
+                  tip={tip}
+                  canHint={humanTurn}
+                  onAsk={() => setShown(hint())}
+                  onClose={() => setShown(null)}
+                />
               </div>
-            </Card>
+            </>
           )}
+        </div>
+
+        {/* Your hand along the very bottom of the screen. */}
+        <div className="flex justify-center">
+          <SeatArea
+            seat="S"
+            state={state}
+            showAll={showAll}
+            onPlay={onPlay}
+            hintCard={shown?.card}
+          />
         </div>
       </div>
     </div>
@@ -191,31 +191,12 @@ function StatusHeader({ state }: { state: GameState }) {
   )
 }
 
-/** One seat: its label (with dealer/turn markers) and its cards — a fan of
- *  backs while concealed, readable faces when the game state reveals them. */
-function SeatArea({
-  seat,
-  state,
-  showAll,
-  onPlay,
-  hintCard,
-}: {
-  seat: Seat
-  state: GameState
-  showAll: boolean
-  onPlay?: (c: PlayingCard) => void
-  hintCard?: PlayingCard
-}) {
-  const hand = visibleHand(state, seat, showAll)
-  const remaining = cardsOf(state.hands[seat]).length
+/** A seat label with the turn highlight and dealer badge. */
+function SeatLabel({ seat, state }: { seat: Seat; state: GameState }) {
   const active = state.turn === seat && (state.phase === 'auction' || state.phase === 'play')
-  const playable =
-    state.phase === 'play' && active && controller(state, seat) === 'human' && Boolean(onPlay)
-  const legal = playable ? legalCards(state.hands[seat], state.current) : []
-
   const partnerTag = seat === partnerOf(HUMAN) ? ' · Partner' : ''
-  const youTag = seat === HUMAN ? 'You' : `${SEAT_NAME[seat]}${partnerTag}`
-  const label = (
+  const text = seat === HUMAN ? 'You' : `${SEAT_NAME[seat]}${partnerTag}`
+  return (
     <div className="flex items-center justify-center gap-1.5">
       <span
         className={cn(
@@ -223,7 +204,7 @@ function SeatArea({
           active ? 'bg-primary/20 text-foreground ring-1 ring-primary' : 'text-foreground/80',
         )}
       >
-        {youTag}
+        {text}
       </span>
       {state.dealer === seat && (
         <span
@@ -236,8 +217,31 @@ function SeatArea({
       )}
     </div>
   )
+}
 
-  const side = seat === 'W' || seat === 'E'
+/** North (partner, top) and South (you, bottom): a horizontal fan of backs while
+ *  concealed, readable faces when revealed. North is the bigger fan. */
+function SeatArea({
+  seat,
+  state,
+  showAll,
+  onPlay,
+  hintCard,
+  big,
+}: {
+  seat: Seat
+  state: GameState
+  showAll: boolean
+  onPlay?: (c: PlayingCard) => void
+  hintCard?: PlayingCard
+  big?: boolean
+}) {
+  const hand = visibleHand(state, seat, showAll)
+  const remaining = cardsOf(state.hands[seat]).length
+  const active = state.turn === seat && (state.phase === 'auction' || state.phase === 'play')
+  const playable =
+    state.phase === 'play' && active && controller(state, seat) === 'human' && Boolean(onPlay)
+  const legal = playable ? legalCards(state.hands[seat], state.current) : []
 
   if (seat === HUMAN) {
     return (
@@ -249,25 +253,55 @@ function SeatArea({
           onPlay={playable ? onPlay : undefined}
           hintCard={hintCard}
         />
-        {label}
+        <SeatLabel seat={seat} state={state} />
       </div>
     )
   }
 
   return (
-    <div className={cn('flex items-center gap-1', side ? 'flex-col' : 'flex-col')}>
-      {label}
+    <div className="flex flex-col items-center gap-1">
+      <SeatLabel seat={seat} state={state} />
       {hand ? (
         <HandFaces
           hand={hand}
-          size="sm"
-          columns={side}
+          size={big ? 'md' : 'sm'}
           legal={playable ? legal : undefined}
           onPlay={playable ? onPlay : undefined}
           hintCard={hintCard}
         />
       ) : (
-        <Fan count={remaining} orient={side ? 'vertical' : 'horizontal'} size="md" />
+        <Fan count={remaining} orient="horizontal" size={big ? 'lg' : 'md'} />
+      )}
+    </div>
+  )
+}
+
+/** West / East: concealed hands shown as a vertical stack of sideways (landscape)
+ *  card backs, fixed to the left/right screen edge and centred vertically. When
+ *  an opponent is dummy the hand is revealed as a compact upright column. */
+function SideHand({ seat, state, showAll }: { seat: Seat; state: GameState; showAll: boolean }) {
+  const hand = visibleHand(state, seat, showAll)
+  const remaining = cardsOf(state.hands[seat]).length
+  const west = seat === 'W'
+  return (
+    <div
+      className={cn(
+        'fixed top-1/2 z-10 flex -translate-y-1/2 flex-col items-center gap-1',
+        west ? 'left-0 pl-1' : 'right-0 pr-1',
+      )}
+    >
+      <SeatLabel seat={seat} state={state} />
+      {hand ? (
+        <HandFaces hand={hand} size="sm" columns />
+      ) : (
+        <div className="flex flex-col items-center" aria-hidden>
+          {Array.from({ length: Math.max(0, remaining) }).map((_, i) => (
+            <span
+              key={i}
+              className={cn('card-back h-10 w-14 rounded-md border', i > 0 && '-mt-7')}
+            />
+          ))}
+        </div>
       )}
     </div>
   )
