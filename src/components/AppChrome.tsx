@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink } from 'react-router'
-import { BookOpen, Home, Maximize, Minimize, Settings, Spade } from 'lucide-react'
+import { BookOpen, Home, Maximize, Minimize, Play, Settings } from 'lucide-react'
 import { ThemeToggle } from '@/features/theme/ThemeToggle'
 import { cn } from '@/lib/utils'
 
@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils'
  */
 const tabs = [
   { to: '/', label: 'Today', icon: Home, end: true },
-  { to: '/play', label: 'Play', icon: Spade, end: false },
+  { to: '/play', label: 'Play', icon: Play, end: false },
   { to: '/sheet', label: 'Cheat-sheet', icon: BookOpen, end: false },
   { to: '/settings', label: 'Settings', icon: Settings, end: false },
 ]
@@ -69,34 +69,39 @@ function FullscreenButton() {
 export function AppChrome() {
   return (
     <div
-      className="app-chrome pl-safe pr-safe sticky bottom-0 z-30 flex items-end justify-between gap-1 px-3 pt-1.5 pb-[max(0.25rem,env(safe-area-inset-bottom))]"
+      className="app-chrome pl-safe pr-safe sticky bottom-0 z-30 grid grid-cols-3 items-center gap-1 px-3 pt-1.5 pb-[max(0.25rem,env(safe-area-inset-bottom))]"
       aria-label="App controls"
     >
-      <Link to="/" aria-label="Finesse — Today" className="brand mb-1.5 text-lg whitespace-nowrap">
+      <Link
+        to="/"
+        aria-label="Finesse — Today"
+        className="brand justify-self-start text-lg whitespace-nowrap"
+      >
         <span aria-hidden>♠</span> Finesse
       </Link>
 
-      <nav className="flex items-end gap-0.5 sm:gap-1" aria-label="Primary">
+      <nav className="flex items-center justify-self-center gap-2 sm:gap-3" aria-label="Primary">
         {tabs.map(({ to, label, icon: Icon, end }) => (
           <NavLink
             key={to}
             to={to}
             end={end}
             viewTransition
+            aria-label={label}
+            title={label}
             className={({ isActive }) =>
               cn(
-                'flex min-h-11 flex-col items-center justify-end gap-0.5 px-2 transition-colors duration-150 ease-soft',
+                'flex min-h-11 min-w-11 items-center justify-center transition-colors duration-150 ease-soft',
                 !isActive && 'opacity-85',
               )
             }
           >
             <Icon className="size-6" aria-hidden />
-            <span className="hidden text-[0.65rem] leading-none font-bold md:block">{label}</span>
           </NavLink>
         ))}
       </nav>
 
-      <div className="flex items-end gap-0.5">
+      <div className="flex items-center justify-self-end gap-0.5">
         <FullscreenButton />
         <ThemeToggle className="mb-px size-11" />
       </div>

@@ -329,46 +329,40 @@ function Centre({ state }: { state: GameState }) {
 }
 
 function AuctionHistory({ state }: { state: GameState }) {
-  const pad = SEAT_COLS.indexOf(state.dealer)
+  // Calls shown centred in bidding order, each tagged with the seat that made
+  // it (so you can still see who bid what) rather than tucked into a rigid
+  // seat column that leaves a lone call off to one side.
+  const start = SEAT_COLS.indexOf(state.dealer)
+  const seatOf = (i: number) => SEAT_COLS[(start + i) % 4]!
+  const seatTag = (s: Seat) => (s === HUMAN ? 'You' : s)
   return (
     <div className="mx-auto w-full max-w-sm rounded-xl border bg-card/85 p-3 text-card-foreground shadow-card">
-      <p className="mb-1.5 text-center text-xs tracking-[0.16em] text-muted-foreground uppercase">
+      <p className="mb-2 text-center text-xs tracking-[0.16em] text-muted-foreground uppercase">
         Auction
       </p>
-      <div className="grid grid-cols-4 gap-x-1 text-center">
-        {SEAT_COLS.map((s) => (
-          <span
-            key={s}
-            className={cn(
-              'flex items-center justify-center gap-1 border-b border-border/60 pb-1 text-xs tracking-[0.08em] uppercase',
-              state.turn === s && state.phase === 'auction'
-                ? 'font-bold text-primary'
-                : 'text-muted-foreground',
-            )}
-          >
-            {s === HUMAN ? 'You' : SEAT_NAME[s]}
-            {state.dealer === s && (
-              <span className="rounded-full bg-foreground/80 px-1 text-[0.6rem] text-background">
-                D
+      {state.auction.length === 0 ? (
+        <p className="text-center text-sm text-muted-foreground">
+          {seatTag(state.dealer)} to open.
+        </p>
+      ) : (
+        <div className="flex flex-wrap items-baseline justify-center gap-x-3 gap-y-1">
+          {state.auction.map((e, i) => (
+            <span key={i} className="inline-flex items-baseline gap-1">
+              <span className="text-[0.65rem] tracking-wide text-muted-foreground uppercase">
+                {seatTag(seatOf(i))}
               </span>
-            )}
-          </span>
-        ))}
-        {Array.from({ length: pad }).map((_, i) => (
-          <span key={`pad${i}`} />
-        ))}
-        {state.auction.map((e, i) => (
-          <span
-            key={i}
-            className={cn(
-              'py-1 font-heading text-xl',
-              e.call.type === 'pass' && 'text-muted-foreground',
-            )}
-          >
-            {callLabel(e.call)}
-          </span>
-        ))}
-      </div>
+              <span
+                className={cn(
+                  'font-heading text-xl',
+                  e.call.type === 'pass' && 'text-muted-foreground',
+                )}
+              >
+                {callLabel(e.call)}
+              </span>
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

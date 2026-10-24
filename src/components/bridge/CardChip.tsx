@@ -13,16 +13,23 @@ const SIZE: Record<CardSize, string> = {
   lg: 'h-16 w-12',
 }
 const RANK_TEXT: Record<CardSize, string> = {
-  xs: 'text-xs',
-  sm: 'text-sm',
+  xs: 'text-sm',
+  sm: 'text-base',
   md: 'text-lg',
   lg: 'text-xl',
 }
 const SUIT_TEXT: Record<CardSize, string> = {
-  xs: 'text-[0.6rem]',
-  sm: 'text-xs',
+  xs: 'text-xs',
+  sm: 'text-sm',
   md: 'text-base',
   lg: 'text-lg',
+}
+/** Hearts and diamonds render a touch small next to spades/clubs, so bump them. */
+const SUIT_TEXT_RED: Record<CardSize, string> = {
+  xs: 'text-sm',
+  sm: 'text-base',
+  md: 'text-lg',
+  lg: 'text-xl',
 }
 
 /**
@@ -48,10 +55,13 @@ export function CardChip({
   selectable?: boolean
   className?: string
 }) {
+  const red = card.suit === 'H' || card.suit === 'D'
   const body = (
     <>
       <span className={cn('leading-none font-bold', RANK_TEXT[size])}>{rankText(card.rank)}</span>
-      <span className={cn('leading-none', SUIT_TEXT[size])}>{SUIT_SYMBOL[card.suit]}</span>
+      <span className={cn('leading-none', red ? SUIT_TEXT_RED[size] : SUIT_TEXT[size])}>
+        {SUIT_SYMBOL[card.suit]}
+      </span>
     </>
   )
   const classes = cn(

@@ -2,6 +2,19 @@
 
 Newest first. One entry per push or decision. Future sessions start here, so write for someone with no memory of this chat.
 
+## 2026-10-24 — Cards theme-aware (dark in dark mode), bigger suits, centred chrome + auction
+
+Owner's specific list after the revert, all small and targeted (no layout restructure — the table stays as it was):
+
+- **Cards follow the theme now.** `card-room.css` `.card-face` was fixed ivory in both modes; now it's `light-dark(ivory, dark oklch(23% 0.02 60))` — ivory in light, a dark card in dark mode (owner: "cards are supposed to be dark on dark mode"). The suit ink on `.card-face` switched from the fixed `--ink-*` palette to the theme-relative `--suit-*` palette, so spades/clubs = `--card-foreground` (dark on ivory / cream on the dark card) and hearts/diamonds = `--suit-red` (dark-red / bright-red). Four-colour diamonds/clubs use `--suit-blue`/`--suit-green` (both light-dark). Light mode is visually unchanged (the old `--ink-*` values ≈ the light `--suit-*` values). The bidding-box buttons use `.card-face` too, so they go dark in dark mode to match — consistent. `--ink-*` tokens are now unused by the face but left defined.
+- **Hearts & diamonds a touch bigger.** `CardChip` gained `SUIT_TEXT_RED` (one step up from `SUIT_TEXT`); H/D use it (the red glyphs render small next to ♠♣).
+- **Bigger rank+suit on the small cards.** Bumped `RANK_TEXT`/`SUIT_TEXT` for `xs`/`sm` (the revealed-dummy / show-all opponent faces) for legibility. Still fits the small footprints.
+- **Chrome (the only layout change the owner asked for).** `AppChrome` is now `grid grid-cols-3` so the four nav icons are dead-centre regardless of the brand/controls widths (was `flex justify-between`, which left them off-centre). The Play tab icon is now the `Play` triangle (lucide) instead of `Spade`. The text labels under the icons are removed (icons only, with `aria-label`+`title` for names). Brand left, fullscreen+theme right, unchanged otherwise.
+- **Auction calls centred.** `AuctionHistory` no longer pads calls into rigid seat columns (which left a lone early "Pass" off to one side). Calls now render as a centred, wrapping row in bidding order, each with a small seat tag (N/E/S/W, "You" for south) so you still see who bid. Empty auction shows "<dealer> to open."
+- **"Show all cards at once" is not a bug and needs no new toggle.** `DEFAULT_PREFS.showAll` is already `false` (normal game: you see only your hand during bidding, + dummy after the opening lead). The owner was seeing every hand because the existing Settings → **Show all hands** teaching toggle was ON (it persists in localStorage). Point the owner to that toggle; do not add a second one.
+- **Checked:** `npm run check` green (lint, typecheck, format, check:effects, 57 tests, build). Screenshots: Play dark (desktop + iPad) incl. four-colour, Play light, and the play phase (dummy small cards) — dark cards, bigger red suits, centred chrome/auction all verified; light mode unchanged.
+- **Status:** pushed to `main`.
+
 ## 2026-10-24 — Reverted the Play redesign; fixed the real bug: pages collapsing to content width
 
 Short version: an earlier push this day (commit 8861633 "symmetric diamond, central hub, fanned hero hand") reworked the Play screen AND redesigned the card face into a "real card" look (corner index + a smaller centre pip). The owner disliked the card redesign ("mismatched sizes, fake traditional"), and separately flagged that "the boxes are fucked." Two things, handled separately:

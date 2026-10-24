@@ -210,8 +210,10 @@ html[data-size='large'] {
 /* Faces: warm ivory in both modes (a real card is ivory, not a dark tile), a
    fine border and a restrained shadow. Suit ink comes from `suit-ink-*`. */
 .card-face {
-  background: light-dark(oklch(98.5% 0.01 95), oklch(95% 0.012 95));
-  border-color: light-dark(oklch(80% 0.02 85), oklch(72% 0.02 85));
+  /* Cards are part of the theme: warm ivory in light mode, a dark card in dark
+     mode (owner's call). Suit ink below flips with the theme so it reads on both. */
+  background: light-dark(oklch(98.5% 0.01 95), oklch(23% 0.02 60));
+  border-color: light-dark(oklch(80% 0.02 85), oklch(44% 0.015 70));
   box-shadow:
     0 1px 1px oklch(0% 0 0 / 0.2),
     0 2px 4px oklch(0% 0 0 / 0.18);
@@ -262,23 +264,25 @@ html[data-size='large'] {
   color: var(--suit-green);
 }
 
-/* On an ivory card face the ink is always dark, whatever the app theme. */
+/* Suit ink on a card face follows the theme (via --suit-*): dark on the ivory
+   light card, bright/cream on the dark card. So spades read as cream in dark
+   mode, hearts stay a readable red in both. */
 .card-face {
-  color: var(--ink-black);
+  color: var(--suit-black);
 }
 .card-face.suit-ink-S,
 .card-face.suit-ink-C {
-  color: var(--ink-black);
+  color: var(--suit-black);
 }
 .card-face.suit-ink-H,
 .card-face.suit-ink-D {
-  color: var(--ink-red);
+  color: var(--suit-red);
 }
 :root[data-suits='four'] .card-face.suit-ink-D {
-  color: var(--ink-blue);
+  color: var(--suit-blue);
 }
 :root[data-suits='four'] .card-face.suit-ink-C {
-  color: var(--ink-green);
+  color: var(--suit-green);
 }
 
 /* ---------- High contrast ---------- */
