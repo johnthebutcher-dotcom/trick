@@ -2,6 +2,23 @@
 
 Newest first. One entry per push or decision. Future sessions start here, so write for someone with no memory of this chat.
 
+## 2026-10-24 — Play screen: symmetric diamond, central hub, fanned hero hand (space/polish pass)
+
+Owner's steer this session: "symmetry and balance while utilizing the screen space for maximum functionality" — and do better than the previous layout. Addressed the live rough edges (landscape hand wrapping to two rows; felt void between auction and hand; cards too small; "too much green"). Reviewed by screenshot in both iPad orientations, both themes, both suit-colour modes.
+
+- **One unified table in both orientations.** Dropped the old split (portrait single-column / landscape two-column that put the bidding box in a separate right-hand column and caused the asymmetry). `PlayPage` now renders the same bridge-table **diamond** always: North across the top, West/East on the sides, your hand along the bottom, one anchor panel dead-centre. The table column is `flex-1 flex-col justify-evenly` so it **fills the height** with balanced spacing — a tight diamond in the short landscape viewport, an evenly spread one in portrait — never one lopsided felt void. The middle band (`W · hub · E`) is `items-center justify-center`, so the two opponents stay symmetric around the centre.
+- **Central hub = the heart of the table (`CentreHub`).** One card-coloured panel in every phase instead of a small panel floating in a sea of felt:
+  - **Auction:** the auction history grid **and** your bidding box live together in the centre panel (`max-w-[30rem]`). This is what killed the "controls off to the side" asymmetry and the auction↔hand void — the box is dead-centre where the eye is, flanked symmetrically by W/E.
+  - **Play:** a **snug mat** (`max-w-[19rem]`) hugging the trick cross — not the wide box the bidding box needs, so the play phase isn't a big empty dark panel. Trick is `lg` cards in a 3×3 (a mini-diamond echoing the table), faint dashed placeholders for unplayed seats.
+  - **Over:** the result / passed-out card renders in the same centre slot.
+- **Fanned hero hand, real-card faces (`CardChip` redesigned).** The face now has a **top-left corner index** (bold rank over mini suit) plus a large centre suit pip — like a real card. Your hand (`HandFaces hero`) is `xl` and fans with a slight in-suit overlap (`-ml-[1.5rem]`); the corner index keeps every covered card readable, so **all 13 fit one row in both orientations** (fixes the landscape two-row wrap) while the cards are much bigger. Suit groups keep a gap between them. Added an `xl` size; `CardChip`/`CardBack` are only used by Play + `Fan`, so the drill's HandView is untouched.
+- **Fan overlap is size-aware now (`Fan.tsx`).** Side (vertical) fans overlap harder so a 13-card side fan stays compact next to the centre; North's horizontal fan stays shallow. H/V overlap tables keyed by card size.
+- **Four-colour verified on the new faces:** clubs green, diamonds blue, hearts red, spades black, in both the hand and the bidding-box suit buttons (corner index + centre pip both take `suit-ink-*`).
+- **Effects gate:** no new effect utilities — still only the ticked set (`hover-lift`, `press`, `animate-pop-in`, `ease-spring`). `check:effects` unchanged.
+- **Checked:** `npm run check` green (lint, typecheck, format, check:effects, 57 tests, build). Screenshots: iPad portrait (820×1180) + landscape (1180×820), dark + light, bidding + play phases, plus four-colour — all symmetric, balanced, hand in one row, no chaotic voids.
+- **Status:** pushed to `main` (auto-deploys to finesse-plum.vercel.app).
+- **Still open (unchanged):** queued soft card-play sounds in all modes; confetti/fireworks on a made contract; undo / claim / hand review; Stayman/transfers + takeout-double bot; the parked multiplayer & game-variant conversations; owner's mum's first name + which bidding system her class uses.
+
 ## 2026-10-23 — Play redesign: double/redouble, vulnerability, table layout, four-colour on ivory cards
 
 - **Engine — double/redouble (real, not faked).** `Call` now includes `{type:'double'}` / `{type:'redouble'}`; `Risk = 'none'|'doubled'|'redoubled'`. `doublingInfo()` scans the auction for the standing bid + risk; `isLegal` enforces the laws (double only an opponent's last bid when undoubled; redouble only your side's bid after an opponent's double; a new bid clears the state). `Contract` carries `risk`; `contractLabel` appends X/XX; `legalCalls` offers them. The bot (`advise`) only ever emits pass/bid — it never doubles — which is safe and keeps it tolerant of being doubled.

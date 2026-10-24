@@ -3,32 +3,46 @@ import { cn } from '@/lib/utils'
 
 const rankText = (r: Card['rank']) => (r === 'T' ? '10' : r)
 
-export type CardSize = 'xs' | 'sm' | 'md' | 'lg'
+export type CardSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 
 /** One card footprint, shared by faces and backs so every card is the same size. */
 const SIZE: Record<CardSize, string> = {
   xs: 'h-9 w-7',
   sm: 'h-11 w-8',
   md: 'h-14 w-10',
-  lg: 'h-16 w-12',
+  lg: 'h-[4.5rem] w-[3.25rem]',
+  xl: 'h-[5.5rem] w-[4rem]',
 }
-const RANK_TEXT: Record<CardSize, string> = {
-  xs: 'text-xs',
-  sm: 'text-sm',
-  md: 'text-lg',
-  lg: 'text-xl',
-}
-const SUIT_TEXT: Record<CardSize, string> = {
+/** Corner index (rank over suit, top-left) — readable even when cards overlap. */
+const INDEX_RANK: Record<CardSize, string> = {
   xs: 'text-[0.6rem]',
   sm: 'text-xs',
-  md: 'text-base',
-  lg: 'text-lg',
+  md: 'text-sm',
+  lg: 'text-base',
+  xl: 'text-lg',
+}
+const INDEX_SUIT: Record<CardSize, string> = {
+  xs: 'text-[0.5rem]',
+  sm: 'text-[0.6rem]',
+  md: 'text-xs',
+  lg: 'text-sm',
+  xl: 'text-base',
+}
+/** Centre pip — the big suit symbol on the fully-visible card. */
+const PIP: Record<CardSize, string> = {
+  xs: 'text-base',
+  sm: 'text-lg',
+  md: 'text-2xl',
+  lg: 'text-3xl',
+  xl: 'text-4xl',
 }
 
 /**
- * A playing-card face: warm ivory, crisp rank and suit, a fine border and a
- * restrained shadow. A button when `onClick` is given. Suit colour comes from
- * the `suit-ink-*` class, so the four-colour option flows through.
+ * A playing-card face: warm ivory, a bold rank-over-suit index in the top-left
+ * corner (so a fanned, overlapping hand stays readable), and a large suit pip in
+ * the centre of the fully-visible card. A fine border and restrained shadow.
+ * A button when `onClick` is given. Suit colour comes from the `suit-ink-*`
+ * class, so the four-colour option flows through.
  */
 export function CardChip({
   card,
@@ -48,22 +62,29 @@ export function CardChip({
   selectable?: boolean
   className?: string
 }) {
+  const r = rankText(card.rank)
+  const sym = SUIT_SYMBOL[card.suit]
   const body = (
     <>
-      <span className={cn('leading-none font-bold', RANK_TEXT[size])}>{rankText(card.rank)}</span>
-      <span className={cn('leading-none', SUIT_TEXT[size])}>{SUIT_SYMBOL[card.suit]}</span>
+      <span className="absolute top-0.5 left-1 flex flex-col items-center leading-none">
+        <span className={cn('font-bold', INDEX_RANK[size])}>{r}</span>
+        <span className={cn('-mt-px leading-none', INDEX_SUIT[size])}>{sym}</span>
+      </span>
+      <span className={cn('leading-none opacity-90', PIP[size])} aria-hidden>
+        {sym}
+      </span>
     </>
   )
   const classes = cn(
-    'card-face inline-flex flex-col items-center justify-center gap-0 rounded-md border',
+    'card-face relative inline-flex items-center justify-center overflow-hidden rounded-md border',
     SIZE[size],
     `suit-ink-${card.suit}`,
-    highlight && 'z-10 ring-3 ring-primary',
+    highlight && 'z-20 ring-3 ring-primary',
     onClick && selectable && !disabled && 'press focus-ring cursor-pointer hover-lift',
     disabled && onClick && 'opacity-45',
     className,
   )
-  const label = `${rankText(card.rank)} of ${SUIT_NAME[card.suit]}`
+  const label = `${r} of ${SUIT_NAME[card.suit]}`
   if (onClick) {
     return (
       <button
